@@ -2,8 +2,8 @@
 .psx
 .create "CPUXOR.bin", 0x80010000
 
-.include "LIB/PSX.INC" ; Include PSX Definitions
-.include "LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
+.include "../../../LIB/PSX.INC" ; Include PSX Definitions
+.include "../../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
 
 .macro PrintString,X,Y,WIDTH,HEIGHT,FONT,STRING,LENGTH ; Print Text String To VRAM Using Width,Height Font At X,Y Position
   la a1,FONT   ; A1 = Font Address

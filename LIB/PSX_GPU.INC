@@ -2,6 +2,17 @@
 ; PSX GPU
 ;=========
 ;==========================
+; GPU helpers
+;==========================
+.macro WAITGPUREADY
+WAITGPUREADYWAIT:
+  RDIOW GP1,t1
+  srl t1,26
+  andi t1,1
+  beq t1,zero,WAITGPUREADYWAIT
+  nop ; Delay Slot
+.endmacro
+;==========================
 ; GPU Other Commands (GP0)
 ;==========================
 GPUNOP    equ 0x00 ; GPU Other Commands (GP0): $00 - NOP
@@ -17,6 +28,7 @@ GPUFILLRECTVRAM                equ 0x02 ; GPU Memory Transfer Commands (GP0): $0
   WRIOW GP0,(0x02<<24)+(COLOR&0xFFFFFF) ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)          ; Write GP0  Packet Word (Top Left Corner:  X Counted In Halfwords, Steps Of $10)
   WRIOW GP0,(HEIGHT<<16)+(WIDTH&0xFFFF) ; Write GP0  Packet Word (Width+Height: Width Counted In Halfwords, Steps Of $10)
+  WAITGPUREADY
 .endmacro
 .macro FillRectVRAMV,COLOR,X,Y,WIDTH,HEIGHT ; GP0($02) - Fill Rectangle In VRAM Variable
   lui t0,0x0200    ; Fill Rectangle In VRAM Command

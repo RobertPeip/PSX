@@ -2,9 +2,9 @@
 .psx
 .create "PSXNICCC.bin", 0x80010000
 
-.include "LIB/PSX.INC" ; Include PSX Definitions
-.include "LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
-.include "LIB/PSX_INPUT.INC" ; Include PSX Input Definitions & Macros
+.include "../../LIB/PSX.INC" ; Include PSX Definitions
+.include "../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
+.include "../../LIB/PSX_INPUT.INC" ; Include PSX Input Definitions & Macros
 
 .org 0x80010000 ; Entry Point Of Code
 
@@ -1167,6 +1167,8 @@ EndOfStream: ; End Of Stream
   nop ; Delay Slot
 
 PlotFillTriangle: ; Plot Fill Triangle (S0=X0, S1=Y0, S2=X1, S3=Y1, S4=X2, S5=Y2, S6 = Color)
+  WAITGPUREADY
+  
   lui t0,0x2000 ; T0 = 0x20000000 (Monochrome Triangle, Opaque Command)
   or t0,s6      ; T0 = Color+Command (Command Word)
   sw t0,GP0(a0) ; I/O Port Register Word = T0
