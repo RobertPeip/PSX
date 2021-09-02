@@ -71,6 +71,18 @@ dw 0
 
 ;-------------------------------------------------------------
 .include "SYS2.ASM" ; GPU routines
+
+.macro WAITGPUREADY
+WAITGPUREADYWAIT:
+  lui fp,0x1F80
+  lw  t5,GP1(fp)
+  nop ; Delay Slot
+  srl t5,26
+  andi t5,1
+  beq t5,zero,WAITGPUREADYWAIT
+  nop ; Delay Slot
+.endmacro
+
 ;-------------------------------------------------------------
 txtDMA  equ 0x0000  ; primitive offsets
 txtRGB  equ 0x0004
@@ -219,6 +231,8 @@ PrintGPU:
 
   li t1,0xE100060F ; draw mode setting.
   li t2,0x04000000 ; Dma transfer off command
+
+  WAITGPUREADY
 
   jal WaitDone      ; also sets fp to $1f800000
   nop               ;

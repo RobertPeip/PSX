@@ -52,6 +52,7 @@ GPUCOPYRECTVRAM                equ 0x80 ; GPU Memory Transfer Commands (GP0): $8
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)        ; Write GP0  Packet Word (Source Coord:      X Counted In Halfwords)
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)        ; Write GP0  Packet Word (Destination Coord: X Counted In Halfwords)
   WRIOW GP0,(HEIGHT<<16)+(WIDTH&0xFFFF) ; Write GP0  Packet Word (Width+Height:  Width Counted In Halfwords)
+  WAITGPUREADY
 .endmacro
 .macro CopyRectVRAMV,X1,Y1,X2,Y2,WIDTH,HEIGHT ; GP0($80) - Copy Rectangle (VRAM To VRAM) Variable
   lui t0,0x8000 ; Copy Rectangle (VRAM To VRAM) Command

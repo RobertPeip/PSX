@@ -2,8 +2,8 @@
 .psx
 .create "MemoryTransfer16BPP.bin", 0x80010000
 
-.include "LIB/PSX.INC" ; Include PSX Definitions
-.include "LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
+.include "../../../LIB/PSX.INC" ; Include PSX Definitions
+.include "../../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
 
 .org 0x80010000 ; Entry Point Of Code
 
