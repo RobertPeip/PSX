@@ -1149,6 +1149,7 @@ GPUFILLLINE                     equ 0x40 ; GPU Render Line Commands (GP0): $40 -
   WRIOW GP0,(0x40<<24)+(COLOR&0xFFFFFF)  ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex1)
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)         ; Write GP0  Packet Word (Vertex2)
+  WAITGPUREADY
 .endmacro
 .macro FillLineV,COLOR,X1,Y1,X2,Y2       ; GP0($40) - Monochrome Line, Opaque Variable
   lui t0,0x4000    ; Monochrome Line, Opaque Command
@@ -1164,6 +1165,7 @@ GPUFILLLINE                     equ 0x40 ; GPU Render Line Commands (GP0): $40 -
   andi X2,0xFFFF ; X2 &= 0xFFFF
   or X2,Y2       ; X2 |= Y2
   sw X2,GP0(a0)  ; Write GP0 Packet Word (Vertex2)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLLINEALPHA                equ 0x42 ; GPU Render Line Commands (GP0): $42 - Monochrome Line, Semi-Transparent
@@ -1171,6 +1173,7 @@ GPUFILLLINEALPHA                equ 0x42 ; GPU Render Line Commands (GP0): $42 -
   WRIOW GP0,(0x42<<24)+(COLOR&0xFFFFFF)  ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex1)
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)         ; Write GP0  Packet Word (Vertex2)
+  WAITGPUREADY
 .endmacro
 .macro FillLineAlphaV,COLOR,X1,Y1,X2,Y2  ; GP0($42) - Monochrome Line, Semi-Transparent Variable
   lui t0,0x4200    ; Monochrome Line, Semi-Transparent Command
@@ -1221,6 +1224,7 @@ GPUFILLPOLYLINE                 equ 0x48 ; GPU Render Line Commands (GP0): $48 -
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)         ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,0x55555555                   ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 .macro FillTriLineV,COLOR,X1,Y1,X2,Y2,X3,Y3 ; GP0($48) - Monochrome Triangle-Line, Opaque Variable
   lui t0,0x4800    ; Monochrome Poly-Line, Opaque Command
@@ -1245,6 +1249,7 @@ GPUFILLPOLYLINE                 equ 0x48 ; GPU Render Line Commands (GP0): $48 -
   sw X1,GP0(a0)  ; Write GP0 Packet Word (Vertex4)
 
   WRIOW GP0,0x55555555 ; Write GP0 Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 
 .macro FillQuadLine,COLOR,X1,Y1,X2,Y2,X3,Y3,X4,Y4 ; GP0($48) - Monochrome Quad-Line, Opaque
@@ -1255,6 +1260,7 @@ GPUFILLPOLYLINE                 equ 0x48 ; GPU Render Line Commands (GP0): $48 -
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)         ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex5)
   WRIOW GP0,0x55555555                   ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 .macro FillQuadLineV,COLOR,X1,Y1,X2,Y2,X3,Y3,X4,Y4 ; GP0($48) - Monochrome Quad-Line, Opaque Variable
   lui t0,0x4800    ; Monochrome Poly-Line, Opaque Command
@@ -1284,6 +1290,7 @@ GPUFILLPOLYLINE                 equ 0x48 ; GPU Render Line Commands (GP0): $48 -
   sw X1,GP0(a0)  ; Write GP0 Packet Word (Vertex5)
 
   WRIOW GP0,0x55555555 ; Write GP0 Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLPOLYLINEALPHA            equ 0x4A ; GPU Render Line Commands (GP0): $4A - Monochrome Poly-Line, Semi-Transparent
@@ -1319,6 +1326,7 @@ GPUFILLPOLYLINEALPHA            equ 0x4A ; GPU Render Line Commands (GP0): $4A -
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)         ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,0x55555555                   ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 .macro FillTriLineAlphaV,COLOR,X1,Y1,X2,Y2,X3,Y3 ; GP0($4A) - Monochrome Triangle-Line, Semi-Transparent Variable
   lui t0,0x4A00    ; Monochrome Poly-Line, Semi-Transparent Command
@@ -1343,6 +1351,7 @@ GPUFILLPOLYLINEALPHA            equ 0x4A ; GPU Render Line Commands (GP0): $4A -
   sw X1,GP0(a0)  ; Write GP0 Packet Word (Vertex4)
 
   WRIOW GP0,0x55555555 ; Write GP0 Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 
 .macro FillQuadLineAlpha,COLOR,X1,Y1,X2,Y2,X3,Y3,X4,Y4 ; GP0($4A) - Monochrome Quad-Line, Semi-Transparent
@@ -1353,6 +1362,7 @@ GPUFILLPOLYLINEALPHA            equ 0x4A ; GPU Render Line Commands (GP0): $4A -
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)         ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex5)
   WRIOW GP0,0x55555555                   ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 .macro FillQuadLineAlphaV,COLOR,X1,Y1,X2,Y2,X3,Y3,X4,Y4 ; GP0($4A) - Monochrome Quad-Line, Semi-Transparent Variable
   lui t0,0x4A00    ; Monochrome Poly-Line, Semi-Transparent Command
@@ -1382,6 +1392,7 @@ GPUFILLPOLYLINEALPHA            equ 0x4A ; GPU Render Line Commands (GP0): $4A -
   sw X1,GP0(a0)  ; Write GP0 Packet Word (Vertex5)
 
   WRIOW GP0,0x55555555 ; Write GP0 Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADELINE                    equ 0x50 ; GPU Render Line Commands (GP0): $50 - Shaded Line, Opaque
@@ -1390,6 +1401,7 @@ GPUSHADELINE                    equ 0x50 ; GPU Render Line Commands (GP0): $50 -
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex1)
   WRIOW GP0,(COLOR2&0xFFFFFF)            ; Write GP0  Packet Word (Color2)
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)         ; Write GP0  Packet Word (Vertex2)
+  WAITGPUREADY
 .endmacro
 .macro ShadeLineV,COLOR1,X1,Y1,COLOR2,X2,Y2 ; GP0($50) - Shaded Line, Opaque Variable
   lui t0,0x5000     ; Shaded Line, Opaque Command
@@ -1407,6 +1419,7 @@ GPUSHADELINE                    equ 0x50 ; GPU Render Line Commands (GP0): $50 -
   andi X2,0xFFFF ; X2 &= 0xFFFF
   or X2,Y2       ; X2 |= Y2
   sw X2,GP0(a0)  ; Write GP0 Packet Word (Vertex2)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADELINEALPHA               equ 0x52 ; GPU Render Line Commands (GP0): $52 - Shaded Line, Semi-Transparent
@@ -1415,6 +1428,7 @@ GPUSHADELINEALPHA               equ 0x52 ; GPU Render Line Commands (GP0): $52 -
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex1)
   WRIOW GP0,(COLOR2&0xFFFFFF)            ; Write GP0  Packet Word (Color2)
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)         ; Write GP0  Packet Word (Vertex2)
+  WAITGPUREADY
 .endmacro
 .macro ShadeLineAlphaV,COLOR1,X1,Y1,COLOR2,X2,Y2 ; GP0($52) - Shaded Line, Semi-Transparent Variable
   lui t0,0x5200     ; Shaded Line, Semi-Transparent Command
@@ -1475,6 +1489,7 @@ GPUSHADEPOLYLINE                equ 0x58 ; GPU Render Line Commands (GP0): $58 -
   WRIOW GP0,(COLOR1&0xFFFFFF)            ; Write GP0  Packet Word (Color4)
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,0x55555555                   ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 .macro ShadeTriLineV,COLOR1,X1,Y1,COLOR2,X2,Y2,COLOR3,X3,Y3 ; GP0($58) - Shaded Triangle-Line, Opaque Variable
   lui t0,0x5800     ; Shaded Poly-Line, Opaque Command
@@ -1505,6 +1520,7 @@ GPUSHADEPOLYLINE                equ 0x58 ; GPU Render Line Commands (GP0): $58 -
   sw X1,GP0(a0) ; Write GP0 Packet Word (Vertex4)
 
   WRIOW GP0,0x55555555 ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 
 .macro ShadeQuadLine,COLOR1,X1,Y1,COLOR2,X2,Y2,COLOR3,X3,Y3,COLOR4,X4,Y4 ; GP0($58) - Shaded Quad-Line, Opaque
@@ -1519,6 +1535,7 @@ GPUSHADEPOLYLINE                equ 0x58 ; GPU Render Line Commands (GP0): $58 -
   WRIOW GP0,(COLOR1&0xFFFFFF)            ; Write GP0  Packet Word (Color5)
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex5)
   WRIOW GP0,0x55555555                   ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 .macro ShadeQuadLineV,COLOR1,X1,Y1,COLOR2,X2,Y2,COLOR3,X3,Y3,COLOR4,X4,Y4 ; GP0($58) - Shaded Quad-Line, Opaque Variable
   lui t0,0x5800     ; Shaded Poly-Line, Opaque Command
@@ -1556,6 +1573,7 @@ GPUSHADEPOLYLINE                equ 0x58 ; GPU Render Line Commands (GP0): $58 -
   sw X1,GP0(a0) ; Write GP0 Packet Word (Vertex5)
 
   WRIOW GP0,0x55555555 ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADEPOLYLINEALPHA           equ 0x5A ; GPU Render Line Commands (GP0): $5A - Shaded Poly-Line, Semi-Transparent
@@ -1599,6 +1617,7 @@ GPUSHADEPOLYLINEALPHA           equ 0x5A ; GPU Render Line Commands (GP0): $5A -
   WRIOW GP0,(COLOR1&0xFFFFFF)            ; Write GP0  Packet Word (Color4)
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,0x55555555                   ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 .macro ShadeTriLineAlphaV,COLOR1,X1,Y1,COLOR2,X2,Y2,COLOR3,X3,Y3 ; GP0($5A) - Shaded Triangle-Line, Semi-Transparent Variable
   lui t0,0x5A00     ; Shaded Poly-Line, Semi-Transparent Command
@@ -1629,6 +1648,7 @@ GPUSHADEPOLYLINEALPHA           equ 0x5A ; GPU Render Line Commands (GP0): $5A -
   sw X1,GP0(a0) ; Write GP0 Packet Word (Vertex4)
 
   WRIOW GP0,0x55555555 ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 
 .macro ShadeQuadLineAlpha,COLOR1,X1,Y1,COLOR2,X2,Y2,COLOR3,X3,Y3,COLOR4,X4,Y4 ; GP0($5A) - Shaded Quad-Line, Semi-Transparent
@@ -1643,6 +1663,7 @@ GPUSHADEPOLYLINEALPHA           equ 0x5A ; GPU Render Line Commands (GP0): $5A -
   WRIOW GP0,(COLOR1&0xFFFFFF)            ; Write GP0  Packet Word (Color5)
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)         ; Write GP0  Packet Word (Vertex5)
   WRIOW GP0,0x55555555                   ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 .macro ShadeQuadLineAlphaV,COLOR1,X1,Y1,COLOR2,X2,Y2,COLOR3,X3,Y3,COLOR4,X4,Y4 ; GP0($5A) - Shaded Quad-Line, Semi-Transparent Variable
   lui t0,0x5A00     ; Shaded Poly-Line, Semi-Transparent Command
@@ -1680,11 +1701,13 @@ GPUSHADEPOLYLINEALPHA           equ 0x5A ; GPU Render Line Commands (GP0): $5A -
   sw X1,GP0(a0) ; Write GP0 Packet Word (Vertex5)
 
   WRIOW GP0,0x55555555 ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 
 GPUPOLYLINEEND      equ 0x55555555 ; GPU Render Line Commands (GP0): $55555555 - Poly-Line, Termination Code
 .macro PolyLineEnd                 ; GP0($55555555) - Poly-Line, Termination Code
   WRIOW GP0,0x55555555             ; Write GP0  Packet Word (Termination Code)
+  WAITGPUREADY
 .endmacro
 .macro FillPolyLineVert,X,Y        ; GP0(X,Y) - Monochrome Poly-Line, Vertex
   WRIOW GP0,(Y<<16)+(X&0xFFFF)     ; Write GP0  Packet Word (Vertex)
@@ -1702,6 +1725,7 @@ GPUFILLRECT                         equ 0x60 ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x60<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(HEIGHT<<16)+(WIDTH&0xFFFF)      ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 .macro FillRectV,COLOR,X,Y,WIDTH,HEIGHT      ; GP0($60) - Monochrome Rectangle (Variable Size), Opaque Variable
   lui t0,0x6000    ; Monochrome Rectangle (Variable Size), Opaque Command
@@ -1717,6 +1741,7 @@ GPUFILLRECT                         equ 0x60 ; GPU Render Rectangle Commands (GP
   andi WIDTH,0xFFFF ; WIDTH &= 0xFFFF
   or WIDTH,HEIGHT   ; WIDTH |= HEIGHT
   sw WIDTH,GP0(a0)  ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLRECTALPHA                    equ 0x62 ; GPU Render Rectangle Commands (GP0): $62 - Monochrome Rectangle (Variable Size), Semi-Transparent
@@ -1724,6 +1749,7 @@ GPUFILLRECTALPHA                    equ 0x62 ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x62<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(HEIGHT<<16)+(WIDTH&0xFFFF)      ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 .macro FillRectAlphaV,COLOR,X,Y,WIDTH,HEIGHT ; GP0($62) - Monochrome Rectangle (Variable Size), Semi-Transparent Variable
   lui t0,0x6200    ; Monochrome Rectangle (Variable Size), Semi-Transparent Command
@@ -1739,6 +1765,7 @@ GPUFILLRECTALPHA                    equ 0x62 ; GPU Render Rectangle Commands (GP
   andi WIDTH,0xFFFF ; WIDTH &= 0xFFFF
   or WIDTH,HEIGHT   ; WIDTH |= HEIGHT
   sw WIDTH,GP0(a0)  ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTBLEND                     equ 0x64 ; GPU Render Rectangle Commands (GP0): $64 - Textured Rectangle (Variable Size), Opaque, Texture-Blending
@@ -1747,6 +1774,7 @@ GPUTEXRECTBLEND                     equ 0x64 ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
   WRIOW GP0,(HEIGHT<<16)+(WIDTH&0xFFFF)      ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 .macro TexRectBlendV,COLOR,X,Y,U,V,PAL,WIDTH,HEIGHT ; GP0($64) - Textured Rectangle (Variable Size), Opaque, Texture-Blending Variable
   lui t0,0x6400    ; Textured Rectangle (Variable Size), Opaque, Texture-Blending Command
@@ -1770,6 +1798,7 @@ GPUTEXRECTBLEND                     equ 0x64 ; GPU Render Rectangle Commands (GP
   andi WIDTH,0xFFFF ; WIDTH &= 0xFFFF
   or WIDTH,HEIGHT   ; WIDTH |= HEIGHT
   sw WIDTH,GP0(a0)  ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTRAW                       equ 0x65 ; GPU Render Rectangle Commands (GP0): $65 - Textured Rectangle (Variable Size), Opaque, Raw-Texture
@@ -1778,6 +1807,7 @@ GPUTEXRECTRAW                       equ 0x65 ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
   WRIOW GP0,(HEIGHT<<16)+(WIDTH&0xFFFF)      ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 .macro TexRectRawV,X,Y,U,V,PAL,WIDTH,HEIGHT  ; GP0($65) - Textured Rectangle (Variable Size), Opaque, Raw-Texture Variable
   lui t0,0x6500 ; Textured Rectangle (Variable Size), Opaque, Raw-Texture Command
@@ -1800,6 +1830,7 @@ GPUTEXRECTRAW                       equ 0x65 ; GPU Render Rectangle Commands (GP
   andi WIDTH,0xFFFF ; WIDTH &= 0xFFFF
   or WIDTH,HEIGHT   ; WIDTH |= HEIGHT
   sw WIDTH,GP0(a0)  ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTBLENDALPHA                equ 0x66 ; GPU Render Rectangle Commands (GP0): $66 - Textured Rectangle (Variable Size), Semi-Transparent, Texture-Blending
@@ -1808,6 +1839,7 @@ GPUTEXRECTBLENDALPHA                equ 0x66 ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
   WRIOW GP0,(HEIGHT<<16)+(WIDTH&0xFFFF)      ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 .macro TexRectBlendAlphaV,COLOR,X,Y,U,V,PAL,WIDTH,HEIGHT ; GP0($66) - Textured Rectangle (Variable Size), Semi-Transparent, Texture-Blending Variable
   lui t0,0x6600    ; Textured Rectangle (Variable Size), Semi-Transparent, Texture-Blending Command
@@ -1831,6 +1863,7 @@ GPUTEXRECTBLENDALPHA                equ 0x66 ; GPU Render Rectangle Commands (GP
   andi WIDTH,0xFFFF ; WIDTH &= 0xFFFF
   or WIDTH,HEIGHT   ; WIDTH |= HEIGHT
   sw WIDTH,GP0(a0)  ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTRAWALPHA                  equ 0x67 ; GPU Render Rectangle Commands (GP0): $67 - Textured Rectangle (Variable Size), Semi-Transparent, Raw-Texture
@@ -1839,6 +1872,7 @@ GPUTEXRECTRAWALPHA                  equ 0x67 ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
   WRIOW GP0,(HEIGHT<<16)+(WIDTH&0xFFFF)      ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 .macro TexRectRawAlphaV,X,Y,U,V,PAL,WIDTH,HEIGHT ; GP0($67) - Textured Rectangle (Variable Size), Semi-Transparent, Raw-Texture Variable
   lui t0,0x6700 ; Textured Rectangle (Variable Size), Semi-Transparent, Raw-Texture Command
@@ -1861,12 +1895,14 @@ GPUTEXRECTRAWALPHA                  equ 0x67 ; GPU Render Rectangle Commands (GP
   andi WIDTH,0xFFFF ; WIDTH &= 0xFFFF
   or WIDTH,HEIGHT   ; WIDTH |= HEIGHT
   sw WIDTH,GP0(a0)  ; Write GP0  Packet Word (Width+Height)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLRECT1X1                      equ 0x68 ; GPU Render Rectangle Commands (GP0): $68 - Monochrome Rectangle Dot (1x1), Opaque
 .macro FillRect1x1,COLOR,X,Y                 ; GP0($68) - Monochrome Rectangle Dot (1x1), Opaque
   WRIOW GP0,(0x68<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 .macro FillRect1x1V,COLOR,X,Y                ; GP0($68) - Monochrome Rectangle Dot (1x1), Opaque Variable
   lui t0,0x6800    ; Monochrome Rectangle Dot (1x1), Opaque Command
@@ -1877,6 +1913,7 @@ GPUFILLRECT1X1                      equ 0x68 ; GPU Render Rectangle Commands (GP
   andi X,0xFFFF ; X &= 0xFFFF
   or X,Y        ; X |= Y
   sw X,GP0(a0)  ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLRECTALPHA1X1                 equ 0x6A ; GPU Render Rectangle Commands (GP0): $6A - Monochrome Rectangle Dot (1x1), Semi-Transparent
@@ -1893,6 +1930,7 @@ GPUFILLRECTALPHA1X1                 equ 0x6A ; GPU Render Rectangle Commands (GP
   andi X,0xFFFF ; X &= 0xFFFF
   or X,Y        ; X |= Y
   sw X,GP0(a0)  ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTBLEND1X1                  equ 0x6C ; GPU Render Rectangle Commands (GP0): $6C - Textured Rectangle Dot (1x1), Opaque, Texture-Blending
@@ -1918,6 +1956,7 @@ GPUTEXRECTBLEND1X1                  equ 0x6C ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTRAW1X1                    equ 0x6D ; GPU Render Rectangle Commands (GP0): $6D - Textured Rectangle Dot (1x1), Opaque, Raw-Texture
@@ -1925,6 +1964,7 @@ GPUTEXRECTRAW1X1                    equ 0x6D ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x6D<<24)                       ; Write GP0 Command Word (Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectRaw1x1V,X,Y,U,V,PAL            ; GP0($6D) - Textured Rectangle Dot (1x1), Opaque, Raw-Texture Variable
   lui t0,0x6D00 ; Textured Rectangle Dot (1x1), Opaque, Raw-Texture Command
@@ -1942,6 +1982,7 @@ GPUTEXRECTRAW1X1                    equ 0x6D ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTBLENDALPHA1X1             equ 0x6E ; GPU Render Rectangle Commands (GP0): $6E - Textured Rectangle Dot (1x1), Semi-Transparent, Texture-Blending
@@ -1949,6 +1990,7 @@ GPUTEXRECTBLENDALPHA1X1             equ 0x6E ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x6E<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectBlendAlpha1x1V,COLOR,X,Y,U,V,PAL ; GP0($6E) - Textured Rectangle Dot (1x1), Semi-Transparent, Texture-Blending Variable
   lui t0,0x6E00    ; Textured Rectangle Dot (1x1), Semi-Transparent, Texture-Blending Command
@@ -1967,6 +2009,7 @@ GPUTEXRECTBLENDALPHA1X1             equ 0x6E ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTRAWALPHA1X1               equ 0x6F ; GPU Render Rectangle Commands (GP0): $6F - Textured Rectangle Dot (1x1), Semi-Transparent, Raw-Texture
@@ -1974,6 +2017,7 @@ GPUTEXRECTRAWALPHA1X1               equ 0x6F ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x6F<<24)                       ; Write GP0 Command Word (Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectRawAlpha1x1V,X,Y,U,V,PAL       ; GP0($6F) - Textured Rectangle Dot (1x1), Semi-Transparent, Raw-Texture Variable
   lui t0,0x6F00 ; Textured Rectangle Dot (1x1), Semi-Transparent, Raw-Texture Command
@@ -1991,12 +2035,14 @@ GPUTEXRECTRAWALPHA1X1               equ 0x6F ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLRECT8X8                      equ 0x70 ; GPU Render Rectangle Commands (GP0): $70 - Monochrome Rectangle (8x8), Opaque
 .macro FillRect8x8,COLOR,X,Y                 ; GP0($70) - Monochrome Rectangle (8x8), Opaque
   WRIOW GP0,(0x70<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 .macro FillRect8x8V,COLOR,X,Y                ; GP0($70) - Monochrome Rectangle (8x8), Opaque Variable
   lui t0,0x7000    ; Monochrome Rectangle (8x8), Opaque Command
@@ -2007,12 +2053,14 @@ GPUFILLRECT8X8                      equ 0x70 ; GPU Render Rectangle Commands (GP
   andi X,0xFFFF ; X &= 0xFFFF
   or X,Y        ; X |= Y
   sw X,GP0(a0)  ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLRECTALPHA8X8                 equ 0x72 ; GPU Render Rectangle Commands (GP0): $72 - Monochrome Rectangle (8x8), Semi-Transparent
 .macro FillRectAlpha8x8,COLOR,X,Y            ; GP0($72) - Monochrome Rectangle (8x8), Semi-Transparent
   WRIOW GP0,(0x72<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 .macro FillRectAlpha8x8V,COLOR,X,Y           ; GP0($72) - Monochrome Rectangle (8x8), Semi-Transparent Variable
   lui t0,0x7200    ; Monochrome Rectangle (8x8), Semi-Transparent Command
@@ -2023,6 +2071,7 @@ GPUFILLRECTALPHA8X8                 equ 0x72 ; GPU Render Rectangle Commands (GP
   andi X,0xFFFF ; X &= 0xFFFF
   or X,Y        ; X |= Y
   sw X,GP0(a0)  ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTBLEND8X8                  equ 0x74 ; GPU Render Rectangle Commands (GP0): $74 - Textured Rectangle (8x8), Opaque, Texture-Blending
@@ -2030,6 +2079,7 @@ GPUTEXRECTBLEND8X8                  equ 0x74 ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x74<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectBlend8x8V,COLOR,X,Y,U,V,PAL    ; GP0($74) - Textured Rectangle (8x8), Opaque, Texture-Blending Variable
   lui t0,0x7400    ; Textured Rectangle (8x8), Opaque, Texture-Blending Command
@@ -2048,6 +2098,7 @@ GPUTEXRECTBLEND8X8                  equ 0x74 ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTRAW8X8                    equ 0x75 ; GPU Render Rectangle Commands (GP0): $75 - Textured Rectangle (8x8), Opaque, Raw-Texture
@@ -2055,6 +2106,7 @@ GPUTEXRECTRAW8X8                    equ 0x75 ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x75<<24)                       ; Write GP0 Command Word (Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectRaw8x8V,X,Y,U,V,PAL            ; GP0($75) - Textured Rectangle (8x8), Opaque, Raw-Texture Variable
   lui t0,0x7500 ; Textured Rectangle (8x8), Opaque, Raw-Texture Command
@@ -2072,6 +2124,7 @@ GPUTEXRECTRAW8X8                    equ 0x75 ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTBLENDALPHA8X8             equ 0x76 ; GPU Render Rectangle Commands (GP0): $76 - Textured Rectangle (8x8), Semi-Transparent, Texture-Blending
@@ -2079,6 +2132,7 @@ GPUTEXRECTBLENDALPHA8X8             equ 0x76 ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x76<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectBlendAlpha8x8V,COLOR,X,Y,U,V,PAL ; GP0($76) - Textured Rectangle (8x8), Semi-Transparent, Texture-Blending Variable
   lui t0,0x7600    ; Textured Rectangle (8x8), Semi-Transparent, Texture-Blending Command
@@ -2097,6 +2151,7 @@ GPUTEXRECTBLENDALPHA8X8             equ 0x76 ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTRAWALPHA8X8               equ 0x77 ; GPU Render Rectangle Commands (GP0): $77 - Textured Rectangle (8x8), Semi-Transparent, Raw-Texture
@@ -2104,6 +2159,7 @@ GPUTEXRECTRAWALPHA8X8               equ 0x77 ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x77<<24)                       ; Write GP0 Command Word (Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectRawAlpha8x8V,X,Y,U,V,PAL       ; GP0($77) - Textured Rectangle (8x8), Semi-Transparent, Raw-Texture Variable
   lui t0,0x7700 ; Textured Rectangle (8x8), Semi-Transparent, Raw-Texture Command
@@ -2121,12 +2177,14 @@ GPUTEXRECTRAWALPHA8X8               equ 0x77 ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLRECT16X16                    equ 0x78 ; GPU Render Rectangle Commands (GP0): $78 - Monochrome Rectangle (16x16), Opaque
 .macro FillRect16x16,COLOR,X,Y               ; GP0($78) - Monochrome Rectangle (16x16), Opaque
   WRIOW GP0,(0x78<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 .macro FillRect16x16V,COLOR,X,Y              ; GP0($78) - Monochrome Rectangle (16x16), Opaque Variable
   lui t0,0x7800    ; Monochrome Rectangle (16x16), Opaque Command
@@ -2137,12 +2195,14 @@ GPUFILLRECT16X16                    equ 0x78 ; GPU Render Rectangle Commands (GP
   andi X,0xFFFF ; X &= 0xFFFF
   or X,Y        ; X |= Y
   sw X,GP0(a0)  ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLRECTALPHA16X16               equ 0x7A ; GPU Render Rectangle Commands (GP0): $7A - Monochrome Rectangle (16x16), Semi-Transparent
 .macro FillRectAlpha16x16,COLOR,X,Y          ; GP0($7A) - Monochrome Rectangle (16x16), Semi-Transparent
   WRIOW GP0,(0x7A<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 .macro FillRectAlpha16x16V,COLOR,X,Y         ; GP0($7A) - Monochrome Rectangle (16x16), Semi-Transparent Variable
   lui t0,0x7A00    ; Monochrome Rectangle (16x16), Semi-Transparent Command
@@ -2153,6 +2213,7 @@ GPUFILLRECTALPHA16X16               equ 0x7A ; GPU Render Rectangle Commands (GP
   andi X,0xFFFF ; X &= 0xFFFF
   or X,Y        ; X |= Y
   sw X,GP0(a0)  ; Write GP0  Packet Word (Vertex)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTBLEND16X16                equ 0x7C ; GPU Render Rectangle Commands (GP0): $7C - Textured Rectangle (16x16), Opaque, Texture-Blending
@@ -2160,6 +2221,7 @@ GPUTEXRECTBLEND16X16                equ 0x7C ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x7C<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectBlend16x16V,COLOR,X,Y,U,V,PAL  ; GP0($7C) - Textured Rectangle (16x16), Opaque, Texture-Blending Variable
   lui t0,0x7C00    ; Textured Rectangle (16x16), Opaque, Texture-Blending Command
@@ -2178,6 +2240,7 @@ GPUTEXRECTBLEND16X16                equ 0x7C ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTRAW16X16                  equ 0x7D ; GPU Render Rectangle Commands (GP0): $7D - Textured Rectangle (16x16), Opaque, Raw-Texture
@@ -2185,6 +2248,7 @@ GPUTEXRECTRAW16X16                  equ 0x7D ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x7D<<24)                       ; Write GP0 Command Word (Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectRaw16x16V,X,Y,U,V,PAL          ; GP0($7D) - Textured Rectangle (16x16), Opaque, Raw-Texture Variable
   lui t0,0x7D00 ; Textured Rectangle (16x16), Opaque, Raw-Texture Command
@@ -2202,6 +2266,7 @@ GPUTEXRECTRAW16X16                  equ 0x7D ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTBLENDALPHA16X16           equ 0x7E ; GPU Render Rectangle Commands (GP0): $7E - Textured Rectangle (16x16), Semi-Transparent, Texture-Blending
@@ -2209,6 +2274,7 @@ GPUTEXRECTBLENDALPHA16X16           equ 0x7E ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x7E<<24)+(COLOR&0xFFFFFF)      ; Write GP0 Command Word (Color+Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectBlendAlpha16x16V,COLOR,X,Y,U,V,PAL ; GP0($7E) - Textured Rectangle (16x16), Semi-Transparent, Texture-Blending Variable
   lui t0,0x7E00    ; Textured Rectangle (16x16), Semi-Transparent, Texture-Blending Command
@@ -2227,6 +2293,7 @@ GPUTEXRECTBLENDALPHA16X16           equ 0x7E ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXRECTRAWALPHA16X16             equ 0x7F ; GPU Render Rectangle Commands (GP0): $7F - Textured Rectangle (16x16), Semi-Transparent, Raw-Texture
@@ -2234,6 +2301,7 @@ GPUTEXRECTRAWALPHA16X16             equ 0x7F ; GPU Render Rectangle Commands (GP
   WRIOW GP0,(0x7F<<24)                       ; Write GP0 Command Word (Command)
   WRIOW GP0,(Y<<16)+(X&0xFFFF)               ; Write GP0  Packet Word (Vertex)
   WRIOW GP0,(PAL<<16)+((V&0xFF)<<8)+(U&0xFF) ; Write GP0  Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 .macro TexRectRawAlpha16x16V,X,Y,U,V,PAL     ; GP0($7F) - Textured Rectangle (16x16), Semi-Transparent, Raw-Texture Variable
   lui t0,0x7F00 ; Textured Rectangle (16x16), Semi-Transparent, Raw-Texture Command
@@ -2251,6 +2319,7 @@ GPUTEXRECTRAWALPHA16X16             equ 0x7F ; GPU Render Rectangle Commands (GP
   or U,V       ; U |= V
   or U,PAL     ; U |= PAL
   sw U,GP0(a0) ; Write GP0 Packet Word (Texcoord+Palette)
+  WAITGPUREADY
 .endmacro
 
 ;================================
