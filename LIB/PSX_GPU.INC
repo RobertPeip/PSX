@@ -129,6 +129,7 @@ GPUFILLTRI                            equ 0x20 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)               ; Write GP0  Packet Word (Vertex1)
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)               ; Write GP0  Packet Word (Vertex2)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
+  WAITGPUREADY
 .endmacro
 .macro FillTriV,COLOR,X1,Y1,X2,Y2,X3,Y3        ; GP0($20) - Monochrome Triangle Polygon, Opaque Variable
   lui t0,0x2000    ; Monochrome Triangle Polygon, Opaque Command
@@ -149,6 +150,7 @@ GPUFILLTRI                            equ 0x20 ; GPU Render Polygon Commands (GP
   andi X3,0xFFFF ; X3 &= 0xFFFF
   or X3,Y3       ; X3 |= Y3
   sw X3,GP0(a0)  ; Write GP0 Packet Word (Vertex3)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLTRIALPHA                       equ 0x22 ; GPU Render Polygon Commands (GP0): $22 - Monochrome Triangle, Semi-Transparent
@@ -157,6 +159,7 @@ GPUFILLTRIALPHA                       equ 0x22 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(Y1<<16)+(X1&0xFFFF)               ; Write GP0  Packet Word (Vertex1)
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)               ; Write GP0  Packet Word (Vertex2)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
+  WAITGPUREADY
 .endmacro
 .macro FillTriAlphaV,COLOR,X1,Y1,X2,Y2,X3,Y3   ; GP0($22) - Monochrome Triangle polygon, Semi-Transparent Variable
   lui t0,0x2200    ; Monochrome Triangle Polygon, Semi-Transparent Command
@@ -177,6 +180,7 @@ GPUFILLTRIALPHA                       equ 0x22 ; GPU Render Polygon Commands (GP
   andi X3,0xFFFF ; X3 &= 0xFFFF
   or X3,Y3       ; X3 |= Y3
   sw X3,GP0(a0)  ; Write GP0 Packet Word (Vertex3)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXTRIBLEND                        equ 0x24 ; GPU Render Polygon Commands (GP0): $24 - Textured Triangle, Opaque, Texture-Blending
@@ -188,6 +192,7 @@ GPUTEXTRIBLEND                        equ 0x24 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(TEX<<16)+((V2&0xFF)<<8)+(U2&0xFF) ; Write GP0  Packet Word (Texcoord2+Texpage)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,((V3&0xFF)<<8)+(U3&0xFF)           ; Write GP0  Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 .macro TexTriBlendV,COLOR,X1,Y1,U1,V1,PAL,X2,Y2,U2,V2,TEX,X3,Y3,U3,V3 ; GP0($24) - Textured Triangle, Opaque, Texture-Blending Variable
   lui t0,0x2400    ; Textured Triangle, Opaque, Texture-Blending Command
@@ -230,6 +235,7 @@ GPUTEXTRIBLEND                        equ 0x24 ; GPU Render Polygon Commands (GP
   sll V3,8       ; V3 <<= 8
   or U3,V3       ; U3 |= V3
   sw U3,GP0(a0)  ; Write GP0 Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXTRIRAW                          equ 0x25 ; GPU Render Polygon Commands (GP0): $25 - Textured Triangle, Opaque, Raw-Texture
@@ -241,6 +247,7 @@ GPUTEXTRIRAW                          equ 0x25 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(TEX<<16)+((V2&0xFF)<<8)+(U2&0xFF) ; Write GP0  Packet Word (Texcoord2+Texpage)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,((V3&0xFF)<<8)+(U3&0xFF)           ; Write GP0  Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 .macro TexTriRawV,X1,Y1,U1,V1,PAL,X2,Y2,U2,V2,TEX,X3,Y3,U3,V3 ; GP0($25) - Textured Triangle, Opaque, Raw-Texture Variable
   lui t0,0x2500 ; Textured Triangle, Opaque, Raw-Texture Command
@@ -282,6 +289,7 @@ GPUTEXTRIRAW                          equ 0x25 ; GPU Render Polygon Commands (GP
   sll V3,8       ; V3 <<= 8
   or U3,V3       ; U3 |= V3
   sw U3,GP0(a0)  ; Write GP0 Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXTRIBLENDALPHA                   equ 0x26 ; GPU Render Polygon Commands (GP0): $26 - Textured Triangle, Semi-Transparent, Texture-Blending
@@ -293,6 +301,7 @@ GPUTEXTRIBLENDALPHA                   equ 0x26 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(TEX<<16)+((V2&0xFF)<<8)+(U2&0xFF) ; Write GP0  Packet Word (Texcoord2+Texpage)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,((V3&0xFF)<<8)+(U3&0xFF)           ; Write GP0  Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 .macro TexTriBlendAlphaV,COLOR,X1,Y1,U1,V1,PAL,X2,Y2,U2,V2,TEX,X3,Y3,U3,V3 ; GP0($26) - Textured Triangle, Semi-Transparent, Texture-Blending Variable
   lui t0,0x2600    ; Textured Triangle, Semi-Transparent, Texture-Blending Command
@@ -335,6 +344,7 @@ GPUTEXTRIBLENDALPHA                   equ 0x26 ; GPU Render Polygon Commands (GP
   sll V3,8       ; V3 <<= 8
   or U3,V3       ; U3 |= V3
   sw U3,GP0(a0)  ; Write GP0 Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXTRIRAWALPHA                     equ 0x27 ; GPU Render Polygon Commands (GP0): $27 - Textured Triangle, Semi-Transparent, Raw-Texture
@@ -346,6 +356,7 @@ GPUTEXTRIRAWALPHA                     equ 0x27 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(TEX<<16)+((V2&0xFF)<<8)+(U2&0xFF) ; Write GP0  Packet Word (Texcoord2+Texpage)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,((V3&0xFF)<<8)+(U3&0xFF)           ; Write GP0  Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 .macro TexTriRawAlphaV,X1,Y1,U1,V1,PAL,X2,Y2,U2,V2,TEX,X3,Y3,U3,V3 ; GP0($27) - Textured Triangle, Semi-Transparent, Raw-Texture Variable
   lui t0,0x2700 ; Textured Triangle, Semi-Transparent, Raw-Texture Command
@@ -387,6 +398,7 @@ GPUTEXTRIRAWALPHA                     equ 0x27 ; GPU Render Polygon Commands (GP
   sll V3,8       ; V3 <<= 8
   or U3,V3       ; U3 |= V3
   sw U3,GP0(a0)  ; Write GP0 Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLQUAD                           equ 0x28 ; GPU Render Polygon Commands (GP0): $28 - Monochrome Quad, Opaque
@@ -396,6 +408,7 @@ GPUFILLQUAD                           equ 0x28 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)               ; Write GP0  Packet Word (Vertex2)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)               ; Write GP0  Packet Word (Vertex4)
+  WAITGPUREADY
 .endmacro
 .macro FillQuadV,COLOR,X1,Y1,X2,Y2,X3,Y3,X4,Y4 ; GP0($28) - Monochrome Quad, Opaque Variable
   lui t0,0x2800    ; Monochrome Quad, Opaque Command
@@ -421,6 +434,7 @@ GPUFILLQUAD                           equ 0x28 ; GPU Render Polygon Commands (GP
   andi X4,0xFFFF ; X4 &= 0xFFFF
   or X4,Y4       ; X4 |= Y4
   sw X4,GP0(a0)  ; Write GP0 Packet Word (Vertex4)
+  WAITGPUREADY
 .endmacro
 
 GPUFILLQUADALPHA                      equ 0x2A ; GPU Render Polygon Commands (GP0): $2A - Monochrome Quad, Semi-Transparent
@@ -430,6 +444,7 @@ GPUFILLQUADALPHA                      equ 0x2A ; GPU Render Polygon Commands (GP
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)               ; Write GP0  Packet Word (Vertex2)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)               ; Write GP0  Packet Word (Vertex4)
+  WAITGPUREADY
 .endmacro
 .macro FillQuadAlphaV,COLOR,X1,Y1,X2,Y2,X3,Y3,X4,Y4 ; GP0($2A) - Monochrome Quad, Semi-Transparent Variable
   lui t0,0x2A00    ; Monochrome Quad, Semi-Transparent Command
@@ -455,6 +470,7 @@ GPUFILLQUADALPHA                      equ 0x2A ; GPU Render Polygon Commands (GP
   andi X4,0xFFFF ; X4 &= 0xFFFF
   or X4,Y4       ; X4 |= Y4
   sw X4,GP0(a0)  ; Write GP0 Packet Word (Vertex4)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXQUADBLEND                       equ 0x2C ; GPU Render Polygon Commands (GP0): $2C - Textured Quad, Opaque, Texture-Blending
@@ -468,6 +484,7 @@ GPUTEXQUADBLEND                       equ 0x2C ; GPU Render Polygon Commands (GP
   WRIOW GP0,((V3&0xFF)<<8)+(U3&0xFF)           ; Write GP0  Packet Word (Texcoord3)
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)               ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,((V4&0xFF)<<8)+(U4&0xFF)           ; Write GP0  Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 .macro TexQuadBlendV,COLOR,X1,Y1,U1,V1,PAL,X2,Y2,U2,V2,TEX,X3,Y3,U3,V3,X4,Y4,U4,V4 ; GP0($2C) - Textured Quad, Opaque, Texture-Blending Variable
   lui t0,0x2C00    ; Monochrome Quad, Semi-Transparent Command
@@ -521,6 +538,7 @@ GPUTEXQUADBLEND                       equ 0x2C ; GPU Render Polygon Commands (GP
   sll V4,8       ; V4 <<= 8
   or U4,V4       ; U4 |= V4
   sw U4,GP0(a0)  ; Write GP0 Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXQUADRAW                         equ 0x2D ; GPU Render Polygon Commands (GP0): $2D - Textured Quad, Opaque, Raw-Texture
@@ -534,6 +552,7 @@ GPUTEXQUADRAW                         equ 0x2D ; GPU Render Polygon Commands (GP
   WRIOW GP0,((V3&0xFF)<<8)+(U3&0xFF)           ; Write GP0  Packet Word (Texcoord3)
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)               ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,((V4&0xFF)<<8)+(U4&0xFF)           ; Write GP0  Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 .macro TexQuadRawV,X1,Y1,U1,V1,PAL,X2,Y2,U2,V2,TEX,X3,Y3,U3,V3,X4,Y4,U4,V4 ; GP0($2D) - Textured Quad, Opaque, Raw-Texture Variable
   lui t0,0x2D00 ; Textured Quad, Opaque, Raw-Texture Command
@@ -586,6 +605,7 @@ GPUTEXQUADRAW                         equ 0x2D ; GPU Render Polygon Commands (GP
   sll V4,8       ; V4 <<= 8
   or U4,V4       ; U4 |= V4
   sw U4,GP0(a0)  ; Write GP0 Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXQUADBLENDALPHA                  equ 0x2E ; GPU Render Polygon Commands (GP0): $2E - Textured Quad, Semi-Transparent, Texture-Blending
@@ -599,6 +619,7 @@ GPUTEXQUADBLENDALPHA                  equ 0x2E ; GPU Render Polygon Commands (GP
   WRIOW GP0,((V3&0xFF)<<8)+(U3&0xFF)           ; Write GP0  Packet Word (Texcoord3)
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)               ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,((V4&0xFF)<<8)+(U4&0xFF)           ; Write GP0  Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 .macro TexQuadBlendAlphaV,COLOR,X1,Y1,U1,V1,PAL,X2,Y2,U2,V2,TEX,X3,Y3,U3,V3,X4,Y4,U4,V4 ; GP0($2E) - Textured Quad, Semi-Transparent, Texture-Blending Variable
   lui t0,0x2E00    ; Textured Quad, Semi-Transparent, Texture-Blending Command
@@ -652,6 +673,7 @@ GPUTEXQUADBLENDALPHA                  equ 0x2E ; GPU Render Polygon Commands (GP
   sll V4,8       ; V4 <<= 8
   or U4,V4       ; U4 |= V4
   sw U4,GP0(a0)  ; Write GP0 Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 
 GPUTEXQUADRAWALPHA                    equ 0x2F ; GPU Render Polygon Commands (GP0): $2F - Textured Quad, Semi-Transparent, Raw-Texture
@@ -665,6 +687,7 @@ GPUTEXQUADRAWALPHA                    equ 0x2F ; GPU Render Polygon Commands (GP
   WRIOW GP0,((V3&0xFF)<<8)+(U3&0xFF)           ; Write GP0  Packet Word (Texcoord3)
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)               ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,((V4&0xFF)<<8)+(U4&0xFF)           ; Write GP0  Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 .macro TexQuadRawAlphaV,X1,Y1,U1,V1,PAL,X2,Y2,U2,V2,TEX,X3,Y3,U3,V3,X4,Y4,U4,V4 ; GP0($2F) - Textured Quad, Semi-Transparent, Raw-Texture Variable
   lui t0,0x2F00 ; Textured Quad, Semi-Transparent, Raw-Texture Command
@@ -717,6 +740,7 @@ GPUTEXQUADRAWALPHA                    equ 0x2F ; GPU Render Polygon Commands (GP
   sll V4,8       ; V4 <<= 8
   or U4,V4       ; U4 |= V4
   sw U4,GP0(a0)  ; Write GP0 Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADETRI                           equ 0x30 ; GPU Render Polygon Commands (GP0): $30 - Shaded Triangle, Opaque
@@ -727,6 +751,7 @@ GPUSHADETRI                           equ 0x30 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)               ; Write GP0  Packet Word (Vertex2)
   WRIOW GP0,(COLOR3&0xFFFFFF)                  ; Write GP0  Packet Word (Color3)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
+  WAITGPUREADY
 .endmacro
 .macro ShadeTriV,COLOR1,X1,Y1,COLOR2,X2,Y2,COLOR3,X3,Y3 ; GP0($30) - Shaded Triangle, Opaque Variable
   lui t0,0x3000     ; Shaded Triangle, Opaque Command
@@ -751,6 +776,7 @@ GPUSHADETRI                           equ 0x30 ; GPU Render Polygon Commands (GP
   andi X3,0xFFFF ; X3 &= 0xFFFF
   or X3,Y3       ; X3 |= Y3
   sw X3,GP0(a0)  ; Write GP0 Packet Word (Vertex3)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADETRIALPHA                      equ 0x32 ; GPU Render Polygon Commands (GP0): $32 - Shaded Triangle, Semi-Transparent
@@ -761,6 +787,7 @@ GPUSHADETRIALPHA                      equ 0x32 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(Y2<<16)+(X2&0xFFFF)               ; Write GP0  Packet Word (Vertex2)
   WRIOW GP0,(COLOR3&0xFFFFFF)                  ; Write GP0  Packet Word (Color3)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
+  WAITGPUREADY
 .endmacro
 .macro ShadeTriAlphaV,COLOR1,X1,Y1,COLOR2,X2,Y2,COLOR3,X3,Y3 ; GP0($32) - Shaded Triangle, Semi-Transparent Variable
   lui t0,0x3200     ; Shaded Triangle, Semi-Transparent Command
@@ -785,6 +812,7 @@ GPUSHADETRIALPHA                      equ 0x32 ; GPU Render Polygon Commands (GP
   andi X3,0xFFFF ; X3 &= 0xFFFF
   or X3,Y3       ; X3 |= Y3
   sw X3,GP0(a0)  ; Write GP0 Packet Word (Vertex3)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADETEXTRI                        equ 0x34 ; GPU Render Polygon Commands (GP0): $34 - Shaded Textured Triangle, Opaque, Texture-Blending
@@ -798,6 +826,7 @@ GPUSHADETEXTRI                        equ 0x34 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(COLOR3&0xFFFFFF)                  ; Write GP0  Packet Word (Color3)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,((V3&0xFF)<<8)+(U3&0xFF)           ; Write GP0  Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 .macro ShadeTexTriV,COLOR1,X1,Y1,U1,V1,PAL,COLOR2,X2,Y2,U2,V2,TEX,COLOR3,X3,Y3,U3,V3 ; GP0($34) - Shaded Textured Triangle, Opaque, Texture-Blending Variable
   lui t0,0x3400     ; Shaded Textured Triangle, Opaque, Texture-Blending Command
@@ -844,6 +873,7 @@ GPUSHADETEXTRI                        equ 0x34 ; GPU Render Polygon Commands (GP
   sll V3,8       ; V3 <<= 8
   or U3,V3       ; U3 |= V3
   sw U3,GP0(a0)  ; Write GP0 Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADETEXTRIALPHA                   equ 0x36 ; GPU Render Polygon Commands (GP0): $36 - Shaded Textured Triangle, Semi-Transparent, Texture-Blending
@@ -857,6 +887,7 @@ GPUSHADETEXTRIALPHA                   equ 0x36 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(COLOR3&0xFFFFFF)                  ; Write GP0  Packet Word (Color3)
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,((V3&0xFF)<<8)+(U3&0xFF)           ; Write GP0  Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 .macro ShadeTexTriAlphaV,COLOR1,X1,Y1,U1,V1,PAL,COLOR2,X2,Y2,U2,V2,TEX,COLOR3,X3,Y3,U3,V3 ; GP0($36) - Shaded Textured Triangle, Semi-Transparent, Texture-Blending Variable
   lui t0,0x3600     ; Shaded Textured Triangle, Semi-Transparent, Texture-Blending Command
@@ -903,6 +934,7 @@ GPUSHADETEXTRIALPHA                   equ 0x36 ; GPU Render Polygon Commands (GP
   sll V3,8       ; V3 <<= 8
   or U3,V3       ; U3 |= V3
   sw U3,GP0(a0)  ; Write GP0 Packet Word (Texcoord3)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADEQUAD                          equ 0x38 ; GPU Render Polygon Commands (GP0): $38 - Shaded Quad, Opaque
@@ -915,6 +947,7 @@ GPUSHADEQUAD                          equ 0x38 ; GPU Render Polygon Commands (GP
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,(COLOR4&0xFFFFFF)                  ; Write GP0  Packet Word (Color4)
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)               ; Write GP0  Packet Word (Vertex4)
+  WAITGPUREADY
 .endmacro
 .macro ShadeQuadV,COLOR1,X1,Y1,COLOR2,X2,Y2,COLOR3,X3,Y3,COLOR4,X4,Y4 ; GP0($38) - Shaded Quad, Opaque Variable
   lui t0,0x3800     ; Shaded Quad, Opaque Command
@@ -946,6 +979,7 @@ GPUSHADEQUAD                          equ 0x38 ; GPU Render Polygon Commands (GP
   andi X4,0xFFFF ; X4 &= 0xFFFF
   or X4,Y4       ; X4 |= Y4
   sw X4,GP0(a0)  ; Write GP0 Packet Word (Vertex4)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADEQUADALPHA                     equ 0x3A ; GPU Render Polygon Commands (GP0): $3A - Shaded Quad, Semi-Transparent
@@ -958,6 +992,7 @@ GPUSHADEQUADALPHA                     equ 0x3A ; GPU Render Polygon Commands (GP
   WRIOW GP0,(Y3<<16)+(X3&0xFFFF)               ; Write GP0  Packet Word (Vertex3)
   WRIOW GP0,(COLOR4&0xFFFFFF)                  ; Write GP0  Packet Word (Color4)
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)               ; Write GP0  Packet Word (Vertex4)
+  WAITGPUREADY
 .endmacro
 .macro ShadeQuadAlphaV,COLOR1,X1,Y1,COLOR2,X2,Y2,COLOR3,X3,Y3,COLOR4,X4,Y4 ; GP0($3A) - Shaded Quad, Semi-Transparent Variable
   lui t0,0x3A00     ; Shaded Quad, Semi-Transparent Command
@@ -989,6 +1024,7 @@ GPUSHADEQUADALPHA                     equ 0x3A ; GPU Render Polygon Commands (GP
   andi X4,0xFFFF ; X4 &= 0xFFFF
   or X4,Y4       ; X4 |= Y4
   sw X4,GP0(a0)  ; Write GP0 Packet Word (Vertex4)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADETEXQUAD                       equ 0x3C ; GPU Render Polygon Commands (GP0): $3C - Shaded Textured Quad, Opaque, Texture-Blending
@@ -1005,6 +1041,7 @@ GPUSHADETEXQUAD                       equ 0x3C ; GPU Render Polygon Commands (GP
   WRIOW GP0,(COLOR4&0xFFFFFF)                  ; Write GP0  Packet Word (Color4)
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)               ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,((V4&0xFF)<<8)+(U4&0xFF)           ; Write GP0  Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 .macro ShadeTexQuadV,COLOR1,X1,Y1,U1,V1,PAL,COLOR2,X2,Y2,U2,V2,TEX,COLOR3,X3,Y3,U3,V3,COLOR4,X4,Y4,U4,V4 ; GP0($3C) - Shaded Textured Quad, Opaque, Texture-Blending Variable
   lui t0,0x3C00     ; Shaded Textured Quad, Opaque, Texture-Blending Command
@@ -1064,6 +1101,7 @@ GPUSHADETEXQUAD                       equ 0x3C ; GPU Render Polygon Commands (GP
   sll V4,8       ; V4 <<= 8
   or U4,V4       ; U4 |= V4
   sw U4,GP0(a0)  ; Write GP0 Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 
 GPUSHADETEXQUADALPHA                  equ 0x3E ; GPU Render Polygon Commands (GP0): $3E - Shaded Textured Quad, Semi-Transparent, Texture-Blending
@@ -1080,6 +1118,7 @@ GPUSHADETEXQUADALPHA                  equ 0x3E ; GPU Render Polygon Commands (GP
   WRIOW GP0,(COLOR4&0xFFFFFF)                  ; Write GP0  Packet Word (Color4)
   WRIOW GP0,(Y4<<16)+(X4&0xFFFF)               ; Write GP0  Packet Word (Vertex4)
   WRIOW GP0,((V4&0xFF)<<8)+(U4&0xFF)           ; Write GP0  Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 .macro ShadeTexQuadAlphaV,COLOR1,X1,Y1,U1,V1,PAL,COLOR2,X2,Y2,U2,V2,TEX,COLOR3,X3,Y3,U3,V3,COLOR4,X4,Y4,U4,V4 ; GP0($3E) - Shaded Textured Quad, Semi-Transparent, Texture-Blending Variable
   lui t0,0x3E00     ; Shaded Textured Quad, Semi-Transparent, Texture-Blending Command
@@ -1139,6 +1178,7 @@ GPUSHADETEXQUADALPHA                  equ 0x3E ; GPU Render Polygon Commands (GP
   sll V4,8       ; V4 <<= 8
   or U4,V4       ; U4 |= V4
   sw U4,GP0(a0)  ; Write GP0 Packet Word (Texcoord4)
+  WAITGPUREADY
 .endmacro
 
 ;================================
