@@ -2,8 +2,8 @@
 .psx
 .create "RenderTexturePolygonMASK15BPP.bin", 0x80010000
 
-.include "LIB/PSX.INC" ; Include PSX Definitions
-.include "LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
+.include "../../../../LIB/PSX.INC" ; Include PSX Definitions
+.include "../../../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
 
 .org 0x80010000 ; Entry Point Of Code
 
@@ -62,6 +62,9 @@ CopyTexture64x64:
   sw t1,GP0(a0) ; Write GP0 Packet Word
   bnez t0,CopyTexture64x64 ; IF (T0 != 0) Copy Texture64x64
   subiu t0,1 ; T0-- (Delay Slot)
+
+; Clear Screen
+FillRectVRAM 0x000000, 0,0, 319,239 ; Fill Rectangle In VRAM: Color, X,Y, Width,Height
 
 ; Render Texture Polygons
 

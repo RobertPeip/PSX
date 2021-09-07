@@ -2,8 +2,8 @@
 .psx
 .create "RenderTextureRectangle15BPP.bin", 0x80010000
 
-.include "LIB/PSX.INC" ; Include PSX Definitions
-.include "LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
+.include "../../../../LIB/PSX.INC" ; Include PSX Definitions
+.include "../../../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
 
 .org 0x80010000 ; Entry Point Of Code
 
@@ -21,6 +21,10 @@ WRGP0 GPUDRAWM,0x000508   ; Write GP0 Command Word (Drawing To Display Area Allo
 WRGP0 GPUDRAWATL,0x000000 ; Write GP0 Command Word (Set Drawing Area Top Left X1=0, Y1=0)
 WRGP0 GPUDRAWABR,0x03BD3F ; Write GP0 Command Word (Set Drawing Area Bottom Right X2=319, Y2=239)
 WRGP0 GPUDRAWOFS,0x000000 ; Write GP0 Command Word (Set Drawing Offset X=0, Y=0)
+
+; Clear Screen
+FillRectVRAM 0x000000, 0,0, 511,511 ; Fill Rectangle In VRAM: Color, X,Y, Width,Height
+FillRectVRAM 0x101010, 512 ,0, 511,511 ; Fill Rectangle In VRAM: Color, X,Y, Width,Height
 
 ; Copy Textures To VRAM
 CopyRectCPU 512,0, 8,8 ; Copy Rectangle (CPU To VRAM): X,Y, Width,Height
