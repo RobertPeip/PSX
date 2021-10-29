@@ -16,6 +16,17 @@ MDEC7                     equ 0x07 ; MDEC Commands: $07 - NOP
 ;=============
 ; MDEC Macros
 ;=============
+
+; MDEC wait decode done
+.macro WAITMDECREADY
+WAITMDECREADYWAIT:
+  RDIOW MDECSTAT,t1
+  srl t1,31
+  andi t1,1
+  bne t1,zero,WAITMDECREADYWAIT
+  nop ; Delay Slot
+.endmacro
+
 ; MDEC Decode Macroblock
 .macro DecodeMacroBlock,DEPTH,SIGN,BIT15,SIZE,DCT ; MDEC($01) - Decode Macroblock
   WRIOW MDECPAR,(0x01<<29)+(DEPTH<<27)+(SIGN<<26)+(BIT15<<25)+SIZE ; Write MDEC Command Word (Color+Command)

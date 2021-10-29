@@ -44,6 +44,8 @@ CopyCLUT:
 ; Decode DCT Macroblock
 DecodeMacroBlock 1,0,0,2,DCTA ; MDEC($01) - Decode Macroblock: Depth 8-Bit, Sign, Bit15, Word Size, RLE Quantized DCT Block
 
+WAITMDECREADY
+
 ; Read Data/Response
 ReadMDEC 16,TextureA8x8 ; MDEC - Read Data/Response: Data Read Word Size, RAM Output Address
 
@@ -64,6 +66,8 @@ TexRectRaw 32,8, 0,0, 0x4020, 8,8 ; Texture Rectangle Raw: X,Y, U,V, PAL, Width,
 
 ; Decode DCT Macroblock
 DecodeMacroBlock 1,0,0,2,DCTB ; MDEC($01) - Decode Macroblock: Depth 8-Bit, Sign, Bit15, Word Size, RLE Quantized DCT Block
+
+WAITMDECREADY
 
 ; Read Data/Response
 ReadMDEC 16,TextureB8x8 ; MDEC - Read Data/Response: Data Read Word Size, RAM Output Address
@@ -86,6 +90,8 @@ TexRectRaw 44,8, 8,0, 0x4020, 8,8 ; Texture Rectangle Raw: X,Y, U,V, PAL, Width,
 ; Decode DCT Macroblock
 DecodeMacroBlock 1,0,0,2,DCTC ; MDEC($01) - Decode Macroblock: Depth 8-Bit, Sign, Bit15, Word Size, RLE Quantized DCT Block
 
+WAITMDECREADY
+
 ; Read Data/Response
 ReadMDEC 16,TextureC8x8 ; MDEC - Read Data/Response: Data Read Word Size, RAM Output Address
 
@@ -106,6 +112,8 @@ TexRectRaw 56,8, 16,0, 0x4020, 8,8 ; Texture Rectangle Raw: X,Y, U,V, PAL, Width
 
 ; Decode DCT Macroblock
 DecodeMacroBlock 1,0,0,3,DCTD ; MDEC($01) - Decode Macroblock: Depth 8-Bit, Sign, Bit15, Word Size, RLE Quantized DCT Block
+
+WAITMDECREADY
 
 ; Read Data/Response
 ReadMDEC 16,TextureD8x8 ; MDEC - Read Data/Response: Data Read Word Size, RAM Output Address
@@ -128,6 +136,8 @@ TexRectRaw 68,8, 24,0, 0x4020, 8,8 ; Texture Rectangle Raw: X,Y, U,V, PAL, Width
 ; Decode DCT Macroblock
 DecodeMacroBlock 1,0,0,3,DCTE ; MDEC($01) - Decode Macroblock: Depth 8-Bit, Sign, Bit15, Word Size, RLE Quantized DCT Block
 
+WAITMDECREADY
+
 ; Read Data/Response
 ReadMDEC 16,TextureE8x8 ; MDEC - Read Data/Response: Data Read Word Size, RAM Output Address
 
@@ -149,6 +159,8 @@ TexRectRaw 80,8, 32,0, 0x4020, 8,8 ; Texture Rectangle Raw: X,Y, U,V, PAL, Width
 ; Decode DCT Macroblock
 DecodeMacroBlock 1,0,0,2,DCTF ; MDEC($01) - Decode Macroblock: Depth 8-Bit, Sign, Bit15, Word Size, RLE Quantized DCT Block
 
+WAITMDECREADY
+
 ; Read Data/Response
 ReadMDEC 16,TextureF8x8 ; MDEC - Read Data/Response: Data Read Word Size, RAM Output Address
 
@@ -169,6 +181,8 @@ TexRectRaw 92,8, 40,0, 0x4020, 8,8 ; Texture Rectangle Raw: X,Y, U,V, PAL, Width
 
 ; Decode DCT Macroblock
 DecodeMacroBlock 1,0,0,15,DCTG ; MDEC($01) - Decode Macroblock: Depth 8-Bit, Sign, Bit15, Word Size, RLE Quantized DCT Block
+
+WAITMDECREADY
 
 ; Read Data/Response
 ReadMDEC 16,TextureG8x8 ; MDEC - Read Data/Response: Data Read Word Size, RAM Output Address
