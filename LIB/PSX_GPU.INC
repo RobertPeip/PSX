@@ -12,6 +12,15 @@ WAITGPUREADYWAIT:
   beq t1,zero,WAITGPUREADYWAIT
   nop ; Delay Slot
 .endmacro
+
+.macro WAITVRAM2CPUREADY
+WAITGPUREADYWAIT:
+  RDIOW GP1,t1
+  srl t1,27
+  andi t1,1
+  beq t1,zero,WAITGPUREADYWAIT
+  nop ; Delay Slot
+.endmacro
 ;==========================
 ; GPU Other Commands (GP0)
 ;==========================

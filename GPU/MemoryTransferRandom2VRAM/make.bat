@@ -1,0 +1,2 @@
+armips MemoryTransferRandom2VRAM.asm
+bin2exe.py MemoryTransferRandom2VRAM.bin MemoryTransferRandom2VRAM.exe
