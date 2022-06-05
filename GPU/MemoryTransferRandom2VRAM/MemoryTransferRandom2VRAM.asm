@@ -13,8 +13,8 @@ la a0,IO_BASE ; A0 = I/O Port Base Address ($1F80XXXX)
 WRGP1 GPURESET,0  ; Write GP1 Command Word (Reset GPU)
 WRGP1 GPUDISPEN,0 ; Write GP1 Command Word (Enable Display)
 WRGP1 GPUDISPM,HRES320+VRES240+BPP15+VNTSC ; Write GP1 Command Word (Set Display Mode: 320x240, 15BPP, NTSC)
-WRGP1 GPUDISPH,0xC60260 ; Write GP1 Command Word (Horizontal Display Range 608..3168)
-WRGP1 GPUDISPV,0x042018 ; Write GP1 Command Word (Vertical Display Range 24..264)
+WRGP1 GPUDISPH,0x00c58258 ; Write GP1 Command Word (Horizontal Display Range
+WRGP1 GPUDISPV,0x00040010 ; Write GP1 Command Word (Vertical Display Range
 
 ; Setup Drawing Area
 WRGP0 GPUDRAWM,0x000400   ; Write GP0 Command Word (Drawing To Display Area Allowed Bit 10)
