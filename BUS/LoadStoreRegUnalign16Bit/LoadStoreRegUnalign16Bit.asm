@@ -1,6 +1,6 @@
 ; PSX 'Bare Metal' Test
 .psx
-.create "LoadStoreReg.bin", 0x80010000
+.create "LoadStoreRegUnalign16Bit.bin", 0x80010000
 
 .include "../../LIB/PSX.INC" ; Include PSX Definitions
 .include "../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
@@ -46,18 +46,7 @@
 
 .macro Widthtest,text, addr
 
-   ; 8 bit
-   li t1, 0
-   li t2, 0x12345678
-   li s4,addr
-   
-   sw t1,0(s4)
-   sb t2,0(s4)
-   lw s1,0(s4)
-   nop
-   PrintHexValue 80,s6,s1
-   
-   ; 16 bit
+   ; 16 bit - unalign 0
    li t1, 0
    li t2, 0x12345678
    li s4,addr
@@ -66,34 +55,31 @@
    sh t2,0(s4)
    lw s1,0(s4)
    nop
-   PrintHexValue 160,s6,s1
+   PrintHexValue 80,s6,s1
    
-   ; 32 bit
+   ; 16 bit - unalign 2
    li t1, 0
    li t2, 0x12345678
    li s4,addr
    
    sw t1,0(s4)
-   sw t2,0(s4)
+   sh t2,2(s4)
    lw s1,0(s4)
    nop
-   PrintHexValue 240,s6,s1
+   PrintHexValue 160,s6,s1
 
    PrintText 20,s6,text
    addiu s6,9
 
 .endmacro
 
-.macro report, ps1value_b, ps1value_h, ps1value_w
+.macro report, ps1value_b, ps1value_h
 
    li s2,ps1value_b
    PrintHexValue 80,s6,s2   
    
    li s2,ps1value_h
    PrintHexValue 160,s6,s2   
-   
-   li s2,ps1value_w
-   PrintHexValue 240,s6,s2
 
    PrintText 20,s6,TEXT_PS1
    addiu s6,13
@@ -129,36 +115,35 @@ FillRectVRAM 0x000000, 0,0, 1023,511 ; Fill Rectangle In VRAM: Color, X,Y, Width
 li s6, 20 ; y pos
 
 ; header
-PrintText 20,s6,TEXT_AREA
-PrintText 80,s6,TEXT_8BIT
-PrintText 160,s6,TEXT_16BIT
-PrintText 240,s6,TEXT_32BIT
+PrintText 20, s6,TEXT_AREA
+PrintText 80, s6,TEXT_16BIT0
+PrintText 160,s6,TEXT_16BIT2
 addiu s6,10
 
 ; tests
 Widthtest TEXT_SPAD, 0x1F800000
-Report 0x78, 0x5678, 0x12345678
+Report 0x00005678, 0x56780000
 
 Widthtest TEXT_DMA,  0x1F8010F0
-Report 0x12345678, 0x12345678, 0x12345678
+Report 0x12345678, 0x56780000
 
 Widthtest TEXT_SIO,  0x1F801058
-Report 0x00000078, 0x00000078, 0x00000078
+Report 0x00000078, 0x00000000
 
 Widthtest TEXT_JOY,  0x1F801048
-Report 0x00000038, 0x00000038, 0x00000038
+Report 0x00000038, 0x00000000
 
 Widthtest TEXT_IRQ,  0x1F801074
-Report 0x12340678, 0x12340678, 0x12340678
+Report 0x12340678, 0x56780000
 
 Widthtest TEXT_SPU,  0x1F801C04
-Report 0x00005678, 0x00005678, 0x12345678
+Report 0x00005678, 0x56780000
 
 Widthtest TEXT_EXP1,  0x1F000000
-Report 0x00000000, 0x00000000, 0x00000000
+Report 0x00000000, 0x00000000
 
 Widthtest TEXT_EXP2,  0x1F802000
-Report 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
+Report 0xFFFFFFFF, 0xFFFFFFFF
 
 
 endloop:
@@ -176,9 +161,8 @@ FontBlack: .incbin "../../LIB/FontBlack8x8.bin"
 VALUEWORDG: .dw 0xFFFFFFFF
   
 TEXT_AREA:       .db "AREA",0
-TEXT_8BIT:       .db "8 BIT",0
-TEXT_16BIT:      .db "16 BIT",0
-TEXT_32BIT:      .db "32 BIT",0
+TEXT_16BIT0:     .db "16BIT 0",0
+TEXT_16BIT2:     .db "16BIT 2",0
 TEXT_PS1:        .db "PS1",0
 
 TEXT_SPAD:       .db "SPAD",0

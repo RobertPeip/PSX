@@ -1,6 +1,6 @@
 ; PSX 'Bare Metal' Test
 .psx
-.create "LoadStoreReg.bin", 0x80010000
+.create "LoadStoreRegUnalign8Bit.bin", 0x80010000
 
 .include "../../LIB/PSX.INC" ; Include PSX Definitions
 .include "../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
@@ -46,35 +46,35 @@
 
 .macro Widthtest,text, addr
 
-   ; 8 bit
+   ; 8 bit - unalign 1
    li t1, 0
    li t2, 0x12345678
    li s4,addr
    
    sw t1,0(s4)
-   sb t2,0(s4)
+   sb t2,1(s4)
    lw s1,0(s4)
    nop
    PrintHexValue 80,s6,s1
    
-   ; 16 bit
+   ; 8 bit - unalign 2
    li t1, 0
    li t2, 0x12345678
    li s4,addr
    
    sw t1,0(s4)
-   sh t2,0(s4)
+   sb t2,2(s4)
    lw s1,0(s4)
    nop
    PrintHexValue 160,s6,s1
    
-   ; 32 bit
+   ; 8 bit - unalign 3
    li t1, 0
    li t2, 0x12345678
    li s4,addr
    
    sw t1,0(s4)
-   sw t2,0(s4)
+   sb t2,3(s4)
    lw s1,0(s4)
    nop
    PrintHexValue 240,s6,s1
@@ -129,30 +129,30 @@ FillRectVRAM 0x000000, 0,0, 1023,511 ; Fill Rectangle In VRAM: Color, X,Y, Width
 li s6, 20 ; y pos
 
 ; header
-PrintText 20,s6,TEXT_AREA
-PrintText 80,s6,TEXT_8BIT
-PrintText 160,s6,TEXT_16BIT
-PrintText 240,s6,TEXT_32BIT
+PrintText 20, s6,TEXT_AREA
+PrintText 80, s6,TEXT_8BIT1
+PrintText 160,s6,TEXT_8BIT2
+PrintText 240,s6,TEXT_8BIT3
 addiu s6,10
 
 ; tests
 Widthtest TEXT_SPAD, 0x1F800000
-Report 0x78, 0x5678, 0x12345678
+Report 0x00007800, 0x00780000, 0x78000000
 
 Widthtest TEXT_DMA,  0x1F8010F0
-Report 0x12345678, 0x12345678, 0x12345678
+Report 0x34567800, 0x56780000, 0x78000000
 
 Widthtest TEXT_SIO,  0x1F801058
-Report 0x00000078, 0x00000078, 0x00000078
+Report 0x00000000, 0x00000000, 0x18000000
 
 Widthtest TEXT_JOY,  0x1F801048
-Report 0x00000038, 0x00000038, 0x00000038
+Report 0x00000000, 0x00000000, 0x38000000
 
 Widthtest TEXT_IRQ,  0x1F801074
-Report 0x12340678, 0x12340678, 0x12340678
+Report 0x34560000, 0x56780000, 0x78000000
 
 Widthtest TEXT_SPU,  0x1F801C04
-Report 0x00005678, 0x00005678, 0x12345678
+Report 0x00000000, 0x56780000, 0x00000000
 
 Widthtest TEXT_EXP1,  0x1F000000
 Report 0x00000000, 0x00000000, 0x00000000
@@ -176,9 +176,9 @@ FontBlack: .incbin "../../LIB/FontBlack8x8.bin"
 VALUEWORDG: .dw 0xFFFFFFFF
   
 TEXT_AREA:       .db "AREA",0
-TEXT_8BIT:       .db "8 BIT",0
-TEXT_16BIT:      .db "16 BIT",0
-TEXT_32BIT:      .db "32 BIT",0
+TEXT_8BIT1:      .db "8 BIT 1",0
+TEXT_8BIT2:      .db "8 BIT 2",0
+TEXT_8BIT3:      .db "8 BIT 3",0
 TEXT_PS1:        .db "PS1",0
 
 TEXT_SPAD:       .db "SPAD",0
