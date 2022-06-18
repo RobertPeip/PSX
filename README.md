@@ -1,5 +1,28 @@
-PSX
-===
+## PSX Tests
+
+Collection of assembler applications by Krom.
+Expanded to test more details of the original PSX hardware.
+
+Timing: 
+- TimingCPU: test internal CPU performance - normal commands, mul and div
+- TimingLoadRAM: test sdram read performance and pipelinging behavior
+- TimingStoreRAM: test sdram write performance and writefifo behavior
+- TimingLoadReg: test read performance from different busses
+- TimingStoreReg: test write performance to different busses
+
+Bus:
+- LoadStoreReg: check 4 byte aligned reads/writes to different busses
+- LoadStoreRegUnalign8: check byte reads/writes to different busses with offset 1,2 or 3
+- LoadStoreRegUnalign16: check halfword reads/writes to different busses with offset 0 and 2
+- Load816Unalign: check readback with bus rotation from different busses
+
+GTE:
+- GTETransfer: check all GTE opcodes timing and pipeline behavior 
+- GTETiming: check execution time of all GTE commands
+
+-------------
+Original readme from Krom
+
 <br />
 PSX Bare Metal Code by krom (Peter Lemon).<br />
 <br />
