@@ -47,6 +47,23 @@
    
    addiu s6,10
 
+   ; add 1 to testcount
+   la a2,TESTCOUNT
+   lw t1, 0(a2)
+   nop
+   addiu t1,1
+   sw t1, 0(a2)
+   
+   ; add 1 to tests passed
+   bne s1,s2,testfail
+   nop
+   la a2,TESTSPASS
+   lw t1, 0(a2)
+   nop
+   addiu t1,1
+   sw t1, 0(a2)
+   testfail:
+
 .endmacro
 
 ;-----------------------------------------------------------------------------
@@ -218,6 +235,21 @@ lui t5, 0x1F80
 
 SingleTest TEXT_SWSPAD9 ,test_sw9, 16
 
+; results
+la a2,TESTSPASS
+lw s2, 0(a2)
+nop
+PrintDezValue 20,s6,s2
+
+PrintText 40,s6,TEXT_OUTOF
+
+la a2,TESTCOUNT
+lw s2, 0(a2)
+nop
+PrintDezValue 100,s6,s2
+
+PrintText 120,s6,TEXT_TP
+
 endloop:
   b endloop
   nop ; Delay Slot
@@ -385,8 +417,13 @@ nop
 FontBlack: .incbin "../../LIB/FontBlack8x8.bin"
   
 VALUEWORDG: .dw 0xFFFFFFFF
+
+TESTCOUNT: .dw 0x0
+TESTSPASS: .dw 0x0
   
 TEXT_TEST:       .db "TEST",0
+TEXT_OUTOF:      .db "OUT OF ",0
+TEXT_TP:         .db "TESTS PASS",0
 TEXT_CYCLES:     .db "CYCLES",0
 TEXT_AVG:        .db "AVG",0
 TEXT_PS1:        .db "PS1",0

@@ -166,6 +166,24 @@
 
 .endmacro
 
+.macro PrintHexValue8,x,y,value
+
+   move s7,value   
+   la a2,VALUEWORDG
+   sw s7, 0(a2)
+   PrintValue  x,y, 8,8, FontBlack,VALUEWORDG,0 ; X,Y,WIDTH,HEIGHT,FONT,STRING,LENGTH
+
+.endmacro
+
+.macro PrintHexValue16,x,y,value
+
+   move s7,value   
+   la a2,VALUEWORDG
+   sw s7, 0(a2)
+   PrintValue  x,y, 8,8, FontBlack,VALUEWORDG,1 ; X,Y,WIDTH,HEIGHT,FONT,STRING,LENGTH
+
+.endmacro
+
 .macro PrintDezValue,x,y,value
 
    li t2, 0 ; result accu

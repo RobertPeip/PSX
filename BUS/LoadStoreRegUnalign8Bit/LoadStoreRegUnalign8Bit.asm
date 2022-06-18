@@ -12,78 +12,6 @@
 ; test macros
 ;-----------------------------------------------------------------------------
 
-.macro SingleTest,text,testfunction, addr, ps1time
-
-   .align 4096 ;make sure it fits in cache together with executing function
-   nop
-   .align 2048
-   
-   li s4,addr
-
-   WRIOH T0_CNTT,0x8000 ; target
-   WRIOH T0_CNTM,0x0008 ; reset
-   
-   li s3,100
-   RDIOH T0_CNT,s1
-   
-   checkloop:
-      jal testfunction
-      nop
-      bnez s3,checkloop
-      subiu s3,1
-   
-   RDIOH T0_CNT,s2
-   
-   sub s2,s1
-
-   li t0,100
-   div s2,t0
-   mflo s1
-   
-   li s2, ps1time
-   
-.endmacro
-
-.macro Widthtest,text, addr
-
-   ; 8 bit - unalign 1
-   li t1, 0
-   li t2, 0x12345678
-   li s4,addr
-   
-   sw t1,0(s4)
-   sb t2,1(s4)
-   lw s1,0(s4)
-   nop
-   PrintHexValue 80,s6,s1
-   
-   ; 8 bit - unalign 2
-   li t1, 0
-   li t2, 0x12345678
-   li s4,addr
-   
-   sw t1,0(s4)
-   sb t2,2(s4)
-   lw s1,0(s4)
-   nop
-   PrintHexValue 160,s6,s1
-   
-   ; 8 bit - unalign 3
-   li t1, 0
-   li t2, 0x12345678
-   li s4,addr
-   
-   sw t1,0(s4)
-   sb t2,3(s4)
-   lw s1,0(s4)
-   nop
-   PrintHexValue 240,s6,s1
-
-   PrintText 20,s6,text
-   addiu s6,9
-
-.endmacro
-
 .macro report, ps1value_b, ps1value_h, ps1value_w
 
    li s2,ps1value_b
@@ -97,6 +25,77 @@
 
    PrintText 20,s6,TEXT_PS1
    addiu s6,13
+
+.endmacro
+
+.macro compareresult, value
+
+   li s2,value
+
+   ; add 1 to testcount
+   la a2,TESTCOUNT
+   lw t1, 0(a2)
+   nop
+   addiu t1,1
+   sw t1, 0(a2)
+   
+   ; add 1 to tests passed
+   bne s1,s2,testfail
+   nop
+   la a2,TESTSPASS
+   lw t1, 0(a2)
+   nop
+   addiu t1,1
+   sw t1, 0(a2)
+   testfail:
+   
+.endmacro
+
+.macro Widthtest,text, addr, ps1value_b, ps1value_h, ps1value_w
+
+   ; 8 bit - unalign 1
+   li t1, 0
+   li t2, 0x12345678
+   li s4,addr
+   
+   sw t1,0(s4)
+   sb t2,1(s4)
+   lw s1,0(s4)
+   nop
+   PrintHexValue 80,s6,s1
+   
+   compareresult ps1value_b
+   
+   ; 8 bit - unalign 2
+   li t1, 0
+   li t2, 0x12345678
+   li s4,addr
+   
+   sw t1,0(s4)
+   sb t2,2(s4)
+   lw s1,0(s4)
+   nop
+   PrintHexValue 160,s6,s1
+   
+   compareresult ps1value_h
+   
+   ; 8 bit - unalign 3
+   li t1, 0
+   li t2, 0x12345678
+   li s4,addr
+   
+   sw t1,0(s4)
+   sb t2,3(s4)
+   lw s1,0(s4)
+   nop
+   PrintHexValue 240,s6,s1
+   
+   compareresult ps1value_w
+
+   PrintText 20,s6,text
+   addiu s6,9
+
+   report ps1value_b, ps1value_h, ps1value_w
 
 .endmacro
 
@@ -136,29 +135,29 @@ PrintText 240,s6,TEXT_8BIT3
 addiu s6,10
 
 ; tests
-Widthtest TEXT_SPAD, 0x1F800000
-Report 0x00007800, 0x00780000, 0x78000000
+Widthtest TEXT_SPAD, 0x1F800000, 0x00007800, 0x00780000, 0x78000000
+Widthtest TEXT_DMA,  0x1F8010F0, 0x34567800, 0x56780000, 0x78000000
+Widthtest TEXT_SIO,  0x1F801058, 0x00000000, 0x00000000, 0x18000000
+Widthtest TEXT_JOY,  0x1F801048, 0x00000000, 0x00000000, 0x38000000
+Widthtest TEXT_IRQ,  0x1F801074, 0x34560000, 0x56780000, 0x78000000
+Widthtest TEXT_SPU,  0x1F801C04, 0x00000000, 0x56780000, 0x00000000
+Widthtest TEXT_EXP1, 0x1F000000, 0x00000000, 0x00000000, 0x00000000
+Widthtest TEXT_EXP2, 0x1F802000, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
 
-Widthtest TEXT_DMA,  0x1F8010F0
-Report 0x34567800, 0x56780000, 0x78000000
+; results
+la a2,TESTSPASS
+lw s2, 0(a2)
+nop
+PrintDezValue 20,s6,s2
 
-Widthtest TEXT_SIO,  0x1F801058
-Report 0x00000000, 0x00000000, 0x18000000
+PrintText 40,s6,TEXT_OUTOF
 
-Widthtest TEXT_JOY,  0x1F801048
-Report 0x00000000, 0x00000000, 0x38000000
+la a2,TESTCOUNT
+lw s2, 0(a2)
+nop
+PrintDezValue 100,s6,s2
 
-Widthtest TEXT_IRQ,  0x1F801074
-Report 0x34560000, 0x56780000, 0x78000000
-
-Widthtest TEXT_SPU,  0x1F801C04
-Report 0x00000000, 0x56780000, 0x00000000
-
-Widthtest TEXT_EXP1,  0x1F000000
-Report 0x00000000, 0x00000000, 0x00000000
-
-Widthtest TEXT_EXP2,  0x1F802000
-Report 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF
+PrintText 120,s6,TEXT_TP
 
 
 endloop:
@@ -174,6 +173,12 @@ endloop:
 FontBlack: .incbin "../../LIB/FontBlack8x8.bin"
   
 VALUEWORDG: .dw 0xFFFFFFFF
+
+TESTCOUNT: .dw 0x0
+TESTSPASS: .dw 0x0
+  
+TEXT_OUTOF:      .db "OUT OF ",0
+TEXT_TP:         .db "TESTS PASS",0
   
 TEXT_AREA:       .db "AREA",0
 TEXT_8BIT1:      .db "8 BIT 1",0

@@ -42,9 +42,26 @@
    
    li s2, ps1time
    
+   ; add 1 to testcount
+   la a2,TESTCOUNT
+   lw t1, 0(a2)
+   nop
+   addiu t1,1
+   sw t1, 0(a2)
+   
+   ; add 1 to tests passed
+   bne s1,s2,testfail
+   nop
+   la a2,TESTSPASS
+   lw t1, 0(a2)
+   nop
+   addiu t1,1
+   sw t1, 0(a2)
+   testfail:
+   
 .endmacro
 
-.macro Widthtest,text, addr, ps1time_b, ps1time_h, ps1time_w
+.macro Widthtest1,text, addr, ps1time_b, ps1time_h, ps1time_w
 
    SingleTest text,test_lbuse1, addr, ps1time_b
    PrintDezValue 80,s6,s1
@@ -55,6 +72,25 @@
    PrintDezValue 190,s6,s2
    
    SingleTest text,test_lwuse1, addr, ps1time_w
+   PrintDezValue 240,s6,s1
+   PrintDezValue 280,s6,s2
+
+   PrintText 20,s6,text
+   addiu s6,10
+
+.endmacro
+
+.macro Widthtest7,text, addr, ps1time_b, ps1time_h, ps1time_w
+
+   SingleTest text,test_lbuse7, addr, ps1time_b
+   PrintDezValue 80,s6,s1
+   PrintDezValue 110,s6,s2
+
+   SingleTest text,test_lhuse7, addr, ps1time_h
+   PrintDezValue 160,s6,s1
+   PrintDezValue 190,s6,s2
+   
+   SingleTest text,test_lwuse7, addr, ps1time_w
    PrintDezValue 240,s6,s1
    PrintDezValue 280,s6,s2
 
@@ -102,22 +138,39 @@ PrintText 270,s6,TEXT_PS1
 addiu s6,10
 
 ; instruction tests
-Widthtest TEXT_SPAD , 0x1F800000, 16, 16, 16
-Widthtest TEXT_RAM  , 0x00000000, 22, 22, 22
-Widthtest TEXT_DMA  , 0x1F8010F0, 20, 20, 20
-Widthtest TEXT_JOY  , 0x1F801044, 20, 20, 20
-Widthtest TEXT_IRQ  , 0x1F801070, 20, 20, 20
-Widthtest TEXT_TMR  , 0x1F801100, 20, 20, 20
-Widthtest TEXT_CD   , 0x1F801800, 25, 42, 77
-Widthtest TEXT_GPU  , 0x1F801814, 20, 20, 20
-Widthtest TEXT_MDEC , 0x1F801824, 20, 20, 20
-Widthtest TEXT_SPU  , 0x1F801DA8, 35, 35, 62
-Widthtest TEXT_SIO  , 0x1F801054, 20, 20, 20
-Widthtest TEXT_BIOS , 0xBFC00000, 24, 32, 48
-Widthtest TEXT_CTRL , 0xFFFE0130, 16, 16, 16
-Widthtest TEXT_EXP1 , 0x1F000000, 24, 32, 48
-Widthtest TEXT_EXP2 , 0x1F802000, 28, 52, 101
-Widthtest TEXT_EXP3 , 0x1FA00000, 23, 23, 27
+Widthtest1 TEXT_SPAD , 0x1F800000, 16, 16, 16
+Widthtest1 TEXT_RAM  , 0x00000000, 22, 22, 22
+Widthtest1 TEXT_DMA  , 0x1F8010F0, 20, 20, 20
+Widthtest1 TEXT_JOY  , 0x1F801044, 20, 20, 20
+Widthtest1 TEXT_IRQ  , 0x1F801070, 20, 20, 20
+Widthtest1 TEXT_TMR  , 0x1F801100, 20, 20, 20
+Widthtest1 TEXT_CD   , 0x1F801800, 25, 42, 77
+Widthtest1 TEXT_GPU  , 0x1F801814, 20, 20, 20
+Widthtest1 TEXT_MDEC , 0x1F801824, 20, 20, 20
+Widthtest1 TEXT_SPU  , 0x1F801DA8, 35, 35, 62
+Widthtest1 TEXT_SIO  , 0x1F801054, 20, 20, 20
+Widthtest1 TEXT_BIOS , 0xBFC00000, 24, 32, 48
+Widthtest1 TEXT_CTRL , 0xFFFE0130, 16, 16, 16
+Widthtest1 TEXT_EXP1 , 0x1F000000, 24, 32, 48
+Widthtest1 TEXT_EXP2 , 0x1F802000, 28, 52, 101
+Widthtest1 TEXT_EXP3 , 0x1FA00000, 23, 23, 27
+Widthtest7 TEXT_DMA7 , 0x1F8010F0, 18, 18, 18
+Widthtest7 TEXT_SPU7 , 0x1F801DA8, 30, 30, 57
+
+; results
+la a2,TESTSPASS
+lw s2, 0(a2)
+nop
+PrintDezValue 20,s6,s2
+
+PrintText 40,s6,TEXT_OUTOF
+
+la a2,TESTCOUNT
+lw s2, 0(a2)
+nop
+PrintDezValue 100,s6,s2
+
+PrintText 120,s6,TEXT_TP
 
 endloop:
   b endloop
@@ -187,6 +240,51 @@ test_lwuse1:
 jr $31
 nop
 
+.align 64
+test_lbuse7:  
+   lb t0,0(s4)
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   move t1,t0
+   nop
+jr $31
+nop
+
+.align 64
+test_lhuse7:  
+   lh t0,0(s4)
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   move t1,t0
+   nop
+jr $31
+nop
+
+.align 64
+test_lwuse7:  
+   lw t0,0(s4)
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   move t1,t0
+   nop
+jr $31
+nop
+
 ;-----------------------------------------------------------------------------
 ; constants area
 ;-----------------------------------------------------------------------------
@@ -197,7 +295,12 @@ FontBlack: .incbin "../../LIB/FontBlack8x8.bin"
   
 VALUEWORDG: .dw 0xFFFFFFFF
   
+TESTCOUNT: .dw 0x0
+TESTSPASS: .dw 0x0
+  
 TEXT_TEST:       .db "TEST",0
+TEXT_OUTOF:      .db "OUT OF ",0
+TEXT_TP:         .db "TESTS PASS",0
 TEXT_CYCLES:     .db "CYCLES",0
 TEXT_B:          .db "B",0
 TEXT_H:          .db "H",0
@@ -210,6 +313,7 @@ TEXT_SPAD:       .db "SPAD",0
 TEXT_RAM:        .db "RAM",0
 
 TEXT_DMA:        .db "DMA",0
+TEXT_DMA7:       .db "DMA7",0
 TEXT_JOY:        .db "JOY",0
 TEXT_IRQ:        .db "IRQ",0
 TEXT_TMR:        .db "TMR",0
@@ -217,6 +321,7 @@ TEXT_CD:         .db "CD",0
 TEXT_GPU:        .db "GPU",0
 TEXT_MDEC:       .db "MDEC",0
 TEXT_SPU:        .db "SPU",0
+TEXT_SPU7:       .db "SPU7",0
 TEXT_SIO:        .db "SIO",0
 TEXT_BIOS:       .db "BIOS",0
 TEXT_CTRL:       .db "CTRL",0

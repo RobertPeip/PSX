@@ -1,6 +1,6 @@
 ; PSX 'Bare Metal' Test
 .psx
-.create "LoadStoreRegUnalign16Bit.bin", 0x80010000
+.create "Load816Unalign.bin", 0x80010000
 
 .include "../../LIB/PSX.INC" ; Include PSX Definitions
 .include "../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
@@ -12,13 +12,22 @@
 ; test macros
 ;-----------------------------------------------------------------------------
 
-.macro report, ps1value_b, ps1value_h
+.macro report, ps1value_full32, ps1value_b1, ps1value_b2, ps1value_b3, ps1value_h2
 
-   li s2,ps1value_b
-   PrintHexValue 80,s6,s2   
+   li s2,ps1value_full32
+   PrintHexValue 80,s6,s2  
    
-   li s2,ps1value_h
-   PrintHexValue 160,s6,s2   
+   li s2,ps1value_b1
+   PrintHexValue8 150,s6,s2  
+   
+   li s2,ps1value_b2
+   PrintHexValue8 170,s6,s2  
+
+   li s2,ps1value_b3
+   PrintHexValue8 190,s6,s2   
+   
+   li s2,ps1value_h2
+   PrintHexValue16 210,s6,s2   
 
    PrintText 20,s6,TEXT_PS1
    addiu s6,13
@@ -48,38 +57,70 @@
    
 .endmacro
 
-.macro Widthtest,text, addr, ps1value_b, ps1value_h
+.macro StoreValue, writevalue, writedata
 
-   ; 16 bit - unalign 0
-   li t1, 0
-   li t2, 0x12345678
-   li s4,addr
+   li t1,writedata
+   beqz t1,skipwrite
+   nop
    
+   li t1, 0
    sw t1,0(s4)
-   sh t2,0(s4)
+
+   li t2, writevalue
+   srl t2,16
+   sh t2,2(s4)
+   
+   li t2, writevalue
+   sw t2,0(s4)
+   
+   skipwrite:
+
+.endmacro
+
+.macro Widthtest,text, addr, writevalue, write16, ps1value_full32, ps1value_b1, ps1value_b2, ps1value_b3, ps1value_h2
+
+   li s4,addr
+
+   StoreValue writevalue, write16
+   ; load full data
    lw s1,0(s4)
    nop
    PrintHexValue 80,s6,s1
+   compareresult ps1value_full32
    
-   compareresult ps1value_b
-   
-   ; 16 bit - unalign 2
-   li t1, 0
-   li t2, 0x12345678
-   li s4,addr
-   
-   sw t1,0(s4)
-   sh t2,2(s4)
-   lw s1,0(s4)
+   StoreValue writevalue, write16
+   ; byte 1
+   lb s1,1(s4)
    nop
-   PrintHexValue 160,s6,s1
+   PrintHexValue8 150,s6,s1
+   compareresult ps1value_b1
    
-   compareresult ps1value_h
+   StoreValue writevalue, write16
+   ; byte 2
+   lb s1,2(s4)
+   nop
+   PrintHexValue8 170,s6,s1
+   compareresult ps1value_b2
+
+   StoreValue writevalue, write16
+   ; byte 3
+   lb s1,3(s4)
+   nop
+   PrintHexValue8 190,s6,s1
+   compareresult ps1value_b3
+
+   StoreValue writevalue, write16
+   ; halfword 2
+   lh s1,2(s4)
+   nop
+   PrintHexValue16 210,s6,s1
+   compareresult ps1value_h2
+
 
    PrintText 20,s6,text
    addiu s6,9
 
-   report ps1value_b, ps1value_h
+   report ps1value_full32, ps1value_b1, ps1value_b2, ps1value_b3, ps1value_h2
 
 .endmacro
 
@@ -113,19 +154,21 @@ li s6, 20 ; y pos
 
 ; header
 PrintText 20, s6,TEXT_AREA
-PrintText 80, s6,TEXT_16BIT0
-PrintText 160,s6,TEXT_16BIT2
+PrintText 80, s6,TEXT_32BIT
+PrintText 150,s6,TEXT_81
+PrintText 170,s6,TEXT_82 
+PrintText 190,s6,TEXT_83  
+PrintText 215,s6,TEXT_162 
 addiu s6,10
 
 ; tests
-Widthtest TEXT_SPAD, 0x1F800000, 0x00005678, 0x56780000
-Widthtest TEXT_DMA,  0x1F8010F0, 0x12345678, 0x56780000
-Widthtest TEXT_SIO,  0x1F801058, 0x00000078, 0x00000000
-Widthtest TEXT_JOY,  0x1F801048, 0x00000038, 0x00000000
-Widthtest TEXT_IRQ,  0x1F801074, 0x12340678, 0x56780000
-Widthtest TEXT_SPU,  0x1F801C04, 0x00005678, 0x56780000
-Widthtest TEXT_EXP1, 0x1F000000, 0x00000000, 0x00000000
-Widthtest TEXT_EXP2, 0x1F802000, 0xFFFFFFFF, 0xFFFFFFFF
+Widthtest TEXT_SPAD, 0x1F800000, 0x12345678, 1, 0x12345678, 0x56, 0x34, 0x12, 0x1234 
+Widthtest TEXT_DMA,  0x1F8010F0, 0x12345678, 1, 0x12345678, 0x56, 0x34, 0x12, 0x1234
+Widthtest TEXT_SIO,  0x1F801058, 0x12345678, 1, 0x12240078, 0x00, 0x24, 0x12, 0x1224
+Widthtest TEXT_JOY,  0x1F801048, 0x12345678, 1, 0x12240038, 0x00, 0x24, 0x12, 0x1224
+Widthtest TEXT_IRQ,  0x1F801074, 0x12345678, 1, 0x12340678, 0x06, 0x34, 0x12, 0x1234
+Widthtest TEXT_SPU,  0x1F801C04, 0x12345678, 1, 0x12345678, 0x56, 0x34, 0x12, 0x1234
+Widthtest TEXT_MEMC, 0x1F801000, 0x12345678, 1, 0x1F345678, 0x56, 0x34, 0x1F, 0x1F34
 
 ; results
 la a2,TESTSPASS
@@ -163,8 +206,11 @@ TEXT_OUTOF:      .db "OUT OF ",0
 TEXT_TP:         .db "TESTS PASS",0
   
 TEXT_AREA:       .db "AREA",0
-TEXT_16BIT0:     .db "16BIT 0",0
-TEXT_16BIT2:     .db "16BIT 2",0
+TEXT_32BIT:      .db "32BIT",0
+TEXT_81:         .db "81",0
+TEXT_82:         .db "82",0
+TEXT_83:         .db "83",0
+TEXT_162:        .db "162",0
 TEXT_PS1:        .db "PS1",0
 
 TEXT_SPAD:       .db "SPAD",0
@@ -175,8 +221,6 @@ TEXT_IRQ:        .db "IRQ",0
 TEXT_CD:         .db "CD",0
 TEXT_SPU:        .db "SPU",0
 TEXT_SIO:        .db "SIO",0
-TEXT_EXP1:       .db "EXP1",0
-TEXT_EXP2:       .db "EXP2",0
-TEXT_EXP3:       .db "EXP3",0
+TEXT_MEMC:       .db "MEMC",0
 
 .close

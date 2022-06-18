@@ -42,6 +42,23 @@
    
    li s2, ps1time
    
+   ; add 1 to testcount
+   la a2,TESTCOUNT
+   lw t1, 0(a2)
+   nop
+   addiu t1,1
+   sw t1, 0(a2)
+   
+   ; add 1 to tests passed
+   bne s1,s2,testfail
+   nop
+   la a2,TESTSPASS
+   lw t1, 0(a2)
+   nop
+   addiu t1,1
+   sw t1, 0(a2)
+   testfail:
+   
 .endmacro
 
 .macro Widthtest,text, addr, ps1time_b, ps1time_h, ps1time_w
@@ -116,6 +133,21 @@ Widthtest TEXT_SIO  , 0x1F801054, 16, 16, 16
 Widthtest TEXT_EXP1 , 0x1F000000, 17, 34, 67
 Widthtest TEXT_EXP2 , 0x1F802000, 22, 44, 89
 Widthtest TEXT_EXP3 , 0x1FA00000, 16, 16, 16
+
+; results
+la a2,TESTSPASS
+lw s2, 0(a2)
+nop
+PrintDezValue 20,s6,s2
+
+PrintText 40,s6,TEXT_OUTOF
+
+la a2,TESTCOUNT
+lw s2, 0(a2)
+nop
+PrintDezValue 100,s6,s2
+
+PrintText 120,s6,TEXT_TP
 
 endloop:
   b endloop
@@ -195,7 +227,12 @@ FontBlack: .incbin "../../LIB/FontBlack8x8.bin"
   
 VALUEWORDG: .dw 0xFFFFFFFF
   
+TESTCOUNT: .dw 0x0
+TESTSPASS: .dw 0x0
+  
 TEXT_TEST:       .db "TEST",0
+TEXT_OUTOF:      .db "OUT OF ",0
+TEXT_TP:         .db "TESTS PASS",0
 TEXT_CYCLES:     .db "CYCLES",0
 TEXT_B:          .db "B",0
 TEXT_H:          .db "H",0
