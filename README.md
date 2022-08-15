@@ -20,6 +20,10 @@ GTE:
 - GTETransfer: check all GTE opcodes timing and pipeline behavior 
 - GTETiming: check execution time of all GTE commands
 
+DMA:
+- DMATimingToDevice: testing DMA to SPU performance and delays. TODO: should be renamed or contain more devices
+- DMAOTCData: check data integrity and speed or different OTC DMA sizes
+
 -------------
 Original readme from Krom
 
