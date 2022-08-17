@@ -10,6 +10,9 @@ Timing:
 - TimingLoadReg: test read performance from different busses
 - TimingStoreReg: test write performance to different busses
 
+Timer:
+- TimerCalib: test resetting timer and reading it for calibration. Also tests wrap at Target Value.
+
 Bus:
 - LoadStoreReg: check 4 byte aligned reads/writes to different busses
 - LoadStoreRegUnalign8: check byte reads/writes to different busses with offset 1,2 or 3
