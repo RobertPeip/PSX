@@ -11,7 +11,9 @@ Timing:
 - TimingStoreReg: test write performance to different busses
 
 Timer:
-- TimerCalib: test resetting timer and reading it for calibration. Also tests wrap at Target Value.
+- TimerCalib: test resetting timer and reading it for calibration. Also TMR2 in Div8 mode and wraparound at 0xFFFF
+- TimerWrap: test wraparounds at different target values
+- TimerSet: Test various combinations of writing current, target and reset
 
 Bus:
 - LoadStoreReg: check 4 byte aligned reads/writes to different busses

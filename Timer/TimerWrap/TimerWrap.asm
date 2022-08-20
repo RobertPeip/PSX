@@ -1,6 +1,6 @@
 ; PSX 'Bare Metal' Test
 .psx
-.create "TimerCalib.bin", 0x80010000
+.create "TimerWrap.bin", 0x80010000
 
 .include "../../LIB/PSX.INC" ; Include PSX Definitions
 .include "../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
@@ -21,7 +21,6 @@ OTC_START equ 0x00100000
    .align 2048
    
    WRIOH T0_CNTT,0x8000 ; target
-   WRIOH T2_CNTT,0x8000 ; target
    
    li s3,2 ; runcount 2, so everything is cached in testrun
    li s2,0
@@ -54,8 +53,8 @@ OTC_START equ 0x00100000
    testfail:
    
    PrintText 20,s6,testname
-   PrintDezValue 200,s6,s1
-   PrintDezValue 260,s6,s2
+   PrintDezValue 140,s6,s1
+   PrintDezValue 200,s6,s2
    
    addiu s6,10
    
@@ -90,31 +89,33 @@ li s6, 20 ; y pos
 
 ; header
 PrintText 20,s6,TEXT_TEST
-PrintText 200,s6,TEXT_CYCLES
-PrintText 260,s6,TEXT_PS1
+PrintText 140,s6,TEXT_CYCLES
+PrintText 200,s6,TEXT_PS1
 addiu s6,10
 
 ; instruction tests
-SingleTest   TEXT_0_NOPKUSEG     , test_timer0KUSEG      ,   0
-SingleTest   TEXT_0_NOPKSEG0     , test_timer0KSEG0      ,   0
-SingleTest   TEXT_0_NOPKSEG1     , test_timer0KSEG1      ,   0
-SingleTest   TEXT_1_NOPKUSEG     , test_timer1KUSEG      ,   0
-SingleTest   TEXT_1_NOPKSEG1     , test_timer1KSEG1      ,   0
-SingleTest   TEXT_2_NOPKUSEG     , test_timer2KUSEG      ,   1
-SingleTest   TEXT_2_NOPKSEG1     , test_timer2KSEG1      ,   1
-SingleTest   TEXT_3_NOPKSEG1     , test_timer3KSEG1      ,   2
-SingleTest   TEXT_4_NOPKSEG1     , test_timer4KSEG1      ,   3
-SingleTest   TEXT_9_NOPKSEG1     , test_timer9KSEG1      ,   8
+SingleTest   TEXT_TIMERWRAP0_1   , test_TIMERWRAP0_1     ,   0
+SingleTest   TEXT_TIMERWRAP0_2   , test_TIMERWRAP0_2     ,   0
+SingleTest   TEXT_TIMERWRAP0_3   , test_TIMERWRAP0_3     ,   0
 
-SingleTest   TEXT_0_TMR2_DIV8    , test_0_TMR2_DIV8      ,   0
-SingleTest   TEXT_1_TMR2_DIV8    , test_1_TMR2_DIV8      ,   0
-SingleTest   TEXT_9_TMR2_DIV8    , test_9_TMR2_DIV8      ,   1
-SingleTest   TEXT_17_TMR2_DIV8   , test_17_TMR2_DIV8     ,   2
+SingleTest   TEXT_TIMERWRAP1_1   , test_TIMERWRAP1_1     ,   0
+SingleTest   TEXT_TIMERWRAP1_2   , test_TIMERWRAP1_2     ,   1
+SingleTest   TEXT_TIMERWRAP1_3   , test_TIMERWRAP1_3     ,   0
+SingleTest   TEXT_TIMERWRAP1_4   , test_TIMERWRAP1_4     ,   0
+SingleTest   TEXT_TIMERWRAP1_5   , test_TIMERWRAP1_5     ,   1
 
-SingleTest   TEXT_NOP_LOOP_9     , test_NOP_LOOP_9       ,   8
-SingleTest   TEXT_NOP_LOOP_65536 , test_NOP_LOOP_65536   ,   65535
-SingleTest   TEXT_NOP_LOOP_65537 , test_NOP_LOOP_65537   ,   0
-SingleTest   TEXT_NOP_LOOP_65538 , test_NOP_LOOP_65538   ,   1
+SingleTest   TEXT_TIMERWRAP4_9   , test_TIMERWRAP4_9     ,   2
+
+SingleTest   TEXT_TIMERWRAP5_9   , test_TIMERWRAP5_9     ,   1
+
+SingleTest   TEXT_TIMERWRAP6_7   , test_TIMERWRAP6_7     ,   6
+SingleTest   TEXT_TIMERWRAP6_8   , test_TIMERWRAP6_8     ,   0
+SingleTest   TEXT_TIMERWRAP6_9   , test_TIMERWRAP6_9     ,   0
+
+SingleTest   TEXT_TIMERWRAP7_8   , test_TIMERWRAP7_8     ,   7
+SingleTest   TEXT_TIMERWRAP7_9   , test_TIMERWRAP7_9     ,   0
+
+SingleTest   TEXT_TIMERWRAP8_9   , test_TIMERWRAP8_9     ,   8
 
 ; results
 la a2,TESTSPASS
@@ -142,10 +143,13 @@ endloop:
 .align 4096 ; make sure it fits in cache together with executing loop
 
 .align 64
-test_timer0KUSEG:  
-   la a1,0x1F800000
+test_TIMERWRAP0_1:  
+   la a1,0xBF800000
+   li t0,0x0000 
+   sh t0,T0_CNTT(a1) ; target
    li t0,0x0008     
-   sh t0,T0_CNTM(a1)
+   sh t0,T0_CNTM(a1) ; reset
+   nop
    lhu s4,T0_CNT(a1)
    nop
    move s1,s4
@@ -153,10 +157,14 @@ jr $31
 nop
 
 .align 64
-test_timer0KSEG0:  
-   la a1,0x9F800000
+test_TIMERWRAP0_2:  
+   la a1,0xBF800000
+   li t0,0x0000 
+   sh t0,T0_CNTT(a1) ; target
    li t0,0x0008     
-   sh t0,T0_CNTM(a1)
+   sh t0,T0_CNTM(a1) ; reset
+   nop
+   nop
    lhu s4,T0_CNT(a1)
    nop
    move s1,s4
@@ -164,10 +172,15 @@ jr $31
 nop
 
 .align 64
-test_timer0KSEG1:  
+test_TIMERWRAP0_3:  
    la a1,0xBF800000
+   li t0,0x0000 
+   sh t0,T0_CNTT(a1) ; target
    li t0,0x0008     
-   sh t0,T0_CNTM(a1)
+   sh t0,T0_CNTM(a1) ; reset
+   nop
+   nop
+   nop
    lhu s4,T0_CNT(a1)
    nop
    move s1,s4
@@ -175,10 +188,12 @@ jr $31
 nop
 
 .align 64
-test_timer1KUSEG:  
-   la a1,0x1F800000
+test_TIMERWRAP1_1:  
+   la a1,0xBF800000
+   li t0,0x0001 
+   sh t0,T0_CNTT(a1) ; target
    li t0,0x0008     
-   sh t0,T0_CNTM(a1)
+   sh t0,T0_CNTM(a1) ; reset
    nop
    lhu s4,T0_CNT(a1)
    nop
@@ -187,10 +202,13 @@ jr $31
 nop
 
 .align 64
-test_timer1KSEG1:  
+test_TIMERWRAP1_2:  
    la a1,0xBF800000
+   li t0,0x0001 
+   sh t0,T0_CNTT(a1) ; target
    li t0,0x0008     
-   sh t0,T0_CNTM(a1)
+   sh t0,T0_CNTM(a1) ; reset
+   nop
    nop
    lhu s4,T0_CNT(a1)
    nop
@@ -199,10 +217,13 @@ jr $31
 nop
 
 .align 64
-test_timer2KUSEG:  
-   la a1,0x1F800000
+test_TIMERWRAP1_3:  
+   la a1,0xBF800000
+   li t0,0x0001
+   sh t0,T0_CNTT(a1) ; target
    li t0,0x0008     
-   sh t0,T0_CNTM(a1)
+   sh t0,T0_CNTM(a1) ; reset
+   nop
    nop
    nop
    lhu s4,T0_CNT(a1)
@@ -212,10 +233,14 @@ jr $31
 nop
 
 .align 64
-test_timer2KSEG1:  
+test_TIMERWRAP1_4:  
    la a1,0xBF800000
+   li t0,0x0001
+   sh t0,T0_CNTT(a1) ; target
    li t0,0x0008     
-   sh t0,T0_CNTM(a1)
+   sh t0,T0_CNTM(a1) ; reset
+   nop
+   nop
    nop
    nop
    lhu s4,T0_CNT(a1)
@@ -225,10 +250,14 @@ jr $31
 nop
 
 .align 64
-test_timer3KSEG1:  
+test_TIMERWRAP1_5:  
    la a1,0xBF800000
+   li t0,0x0001
+   sh t0,T0_CNTT(a1) ; target
    li t0,0x0008     
-   sh t0,T0_CNTM(a1)
+   sh t0,T0_CNTM(a1) ; reset
+   nop
+   nop
    nop
    nop
    nop
@@ -239,10 +268,17 @@ jr $31
 nop
 
 .align 64
-test_timer4KSEG1:  
+test_TIMERWRAP4_9:  
    la a1,0xBF800000
+   li t0,0x0004 
+   sh t0,T0_CNTT(a1) ; target
    li t0,0x0008     
-   sh t0,T0_CNTM(a1)
+   sh t0,T0_CNTM(a1) ; reset
+   nop
+   nop
+   nop
+   nop
+   nop
    nop
    nop
    nop
@@ -254,10 +290,12 @@ jr $31
 nop
 
 .align 64
-test_timer9KSEG1:  
+test_TIMERWRAP5_9:  
    la a1,0xBF800000
+   li t0,0x0005 
+   sh t0,T0_CNTT(a1) ; target
    li t0,0x0008     
-   sh t0,T0_CNTM(a1)
+   sh t0,T0_CNTM(a1) ; reset
    nop
    nop
    nop
@@ -274,33 +312,33 @@ jr $31
 nop
 
 .align 64
-test_0_TMR2_DIV8:  
+test_TIMERWRAP6_7:  
    la a1,0xBF800000
-   li t0,0x0208     
-   sh t0,T2_CNTM(a1)
-   lhu s4,T2_CNT(a1)
+   li t0,0x0006 
+   sh t0,T0_CNTT(a1) ; target
+   li t0,0x0008     
+   sh t0,T0_CNTM(a1) ; reset
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   lhu s4,T0_CNT(a1)
    nop
    move s1,s4
 jr $31
 nop
 
-.align 64
-test_1_TMR2_DIV8:  
-   la a1,0xBF800000
-   li t0,0x0208     
-   sh t0,T2_CNTM(a1)
-   nop
-   lhu s4,T2_CNT(a1)
-   nop
-   move s1,s4
-jr $31
-nop
 
 .align 64
-test_9_TMR2_DIV8:  
+test_TIMERWRAP6_8:  
    la a1,0xBF800000
-   li t0,0x0208     
-   sh t0,T2_CNTM(a1)
+   li t0,0x0006 
+   sh t0,T0_CNTT(a1) ; target
+   li t0,0x0008     
+   sh t0,T0_CNTM(a1) ; reset
    nop
    nop
    nop
@@ -309,53 +347,6 @@ test_9_TMR2_DIV8:
    nop
    nop
    nop
-   nop
-   lhu s4,T2_CNT(a1)
-   nop
-   move s1,s4
-jr $31
-nop
-
-.align 64
-test_17_TMR2_DIV8:  
-   la a1,0xBF800000
-   li t0,0x0208     
-   sh t0,T2_CNTM(a1)
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   nop
-   lhu s4,T2_CNT(a1)
-   nop
-   move s1,s4
-jr $31
-nop
-
-.align 64
-test_NOP_LOOP_9:  
-   li t1, 3 ; 8 cycles loop
-   la a1,0xBF800000
-   li t0,0x0000     
-   sh t0,T0_CNTM(a1)
-   
-   loop_NOP_LOOP_9:
-   bnez t1, loop_NOP_LOOP_9
-   subiu t1, 1
-   nop
-   
    lhu s4,T0_CNT(a1)
    nop
    move s1,s4
@@ -363,16 +354,21 @@ jr $31
 nop
 
 .align 64
-test_NOP_LOOP_65536:  
-   li t1, 32767 ; 65534 cycles loop
+test_TIMERWRAP6_9:  
    la a1,0xBF800000
-   li t0,0x0000     
-   sh t0,T0_CNTM(a1)
-   
-   loop_NOP_LOOP_65536:
-   bnez t1, loop_NOP_LOOP_65536
-   subiu t1, 1
-
+   li t0,0x0006 
+   sh t0,T0_CNTT(a1) ; target
+   li t0,0x0008     
+   sh t0,T0_CNTM(a1) ; reset
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
    lhu s4,T0_CNT(a1)
    nop
    move s1,s4
@@ -380,17 +376,20 @@ jr $31
 nop
 
 .align 64
-test_NOP_LOOP_65537:  
-   li t1, 32767 ; 65534 cycles loop
+test_TIMERWRAP7_8:  
    la a1,0xBF800000
-   li t0,0x0000     
-   sh t0,T0_CNTM(a1)
-   
-   loop_NOP_LOOP_65537:
-   bnez t1, loop_NOP_LOOP_65537
-   subiu t1, 1
+   li t0,0x0007 
+   sh t0,T0_CNTT(a1) ; target
+   li t0,0x0008     
+   sh t0,T0_CNTM(a1) ; reset
    nop
-
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
    lhu s4,T0_CNT(a1)
    nop
    move s1,s4
@@ -398,18 +397,43 @@ jr $31
 nop
 
 .align 64
-test_NOP_LOOP_65538:  
-   li t1, 32767 ; 65534 cycles loop
+test_TIMERWRAP7_9:  
    la a1,0xBF800000
-   li t0,0x0000     
-   sh t0,T0_CNTM(a1)
-   
-   loop_NOP_LOOP_65538:
-   bnez t1, loop_NOP_LOOP_65538
-   subiu t1, 1
+   li t0,0x0007 
+   sh t0,T0_CNTT(a1) ; target
+   li t0,0x0008     
+   sh t0,T0_CNTM(a1) ; reset
    nop
    nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   lhu s4,T0_CNT(a1)
+   nop
+   move s1,s4
+jr $31
+nop
 
+.align 64
+test_TIMERWRAP8_9:  
+   la a1,0xBF800000
+   li t0,0x0008 
+   sh t0,T0_CNTT(a1) ; target
+   li t0,0x0008     
+   sh t0,T0_CNTM(a1) ; reset
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
+   nop
    lhu s4,T0_CNT(a1)
    nop
    move s1,s4
@@ -442,19 +466,30 @@ TEXT_1_NOPKUSEG:     .db "1 NOP KUSEG",0
 TEXT_1_NOPKSEG1:     .db "1 NOP KSEG1",0
 TEXT_2_NOPKUSEG:     .db "2 NOP KUSEG",0
 TEXT_2_NOPKSEG1:     .db "2 NOP KSEG1",0
-TEXT_3_NOPKSEG1:     .db "3 NOP KSEG1",0
-TEXT_4_NOPKSEG1:     .db "4 NOP KSEG1",0
 TEXT_9_NOPKSEG1:     .db "9 NOP KSEG1",0
 
-TEXT_0_TMR2_DIV8:    .db "0 TMR2 DIV8",0
-TEXT_1_TMR2_DIV8:    .db "1 TMR2 DIV8",0
-TEXT_9_TMR2_DIV8:    .db "9 TMR2 DIV8",0
-TEXT_17_TMR2_DIV8:   .db "17 TMR2 DIV8",0
+TEXT_TIMERWRAP0_1:   .db "TIMERWRAP0 1",0
+TEXT_TIMERWRAP0_2:   .db "TIMERWRAP0 2",0
+TEXT_TIMERWRAP0_3:   .db "TIMERWRAP0 3",0
 
-TEXT_NOP_LOOP_9:     .db "NOP LOOP 9",0
-TEXT_NOP_LOOP_65536: .db "NOP LOOP 65536",0
-TEXT_NOP_LOOP_65537: .db "NOP LOOP 65537",0
-TEXT_NOP_LOOP_65538: .db "NOP LOOP 65538",0
+TEXT_TIMERWRAP1_1:   .db "TIMERWRAP1 1",0
+TEXT_TIMERWRAP1_2:   .db "TIMERWRAP1 2",0
+TEXT_TIMERWRAP1_3:   .db "TIMERWRAP1 3",0
+TEXT_TIMERWRAP1_4:   .db "TIMERWRAP1 4",0
+TEXT_TIMERWRAP1_5:   .db "TIMERWRAP1 5",0
+
+TEXT_TIMERWRAP4_9:   .db "TIMERWRAP4 9",0
+
+TEXT_TIMERWRAP5_9:   .db "TIMERWRAP5 9",0
+
+TEXT_TIMERWRAP6_7:   .db "TIMERWRAP6 7",0
+TEXT_TIMERWRAP6_8:   .db "TIMERWRAP6 8",0
+TEXT_TIMERWRAP6_9:   .db "TIMERWRAP6 9",0
+
+TEXT_TIMERWRAP7_8:   .db "TIMERWRAP7 8",0
+TEXT_TIMERWRAP7_9:   .db "TIMERWRAP7 9",0
+
+TEXT_TIMERWRAP8_9:   .db "TIMERWRAP8 9",0
 
 TEXT_ERROR:          .db "ERROR",0
 
