@@ -29,6 +29,9 @@ DMA:
 - DMATimingToDevice: testing DMA to SPU performance and delays. TODO: should be renamed or contain more devices
 - DMAOTCData: check data integrity and speed or different OTC DMA sizes
 
+Pipeline:
+- PipelineInternelRegs: testing write pipelining and write queue using writes and (stalling) reads to Timer registers
+
 -------------
 Original readme from Krom
 
