@@ -85,11 +85,20 @@ FillRectVRAM 0x000000, 0,0, 1023,511 ; Fill Rectangle In VRAM: Color, X,Y, Width
 ;-----------------------------------------------------------------------------
 
 li s6, 20 ; y pos
+PrintText 20,s6,TEXT_COM_DELAY
+
+lw s1,COM_DELAY(a0)
+nop
+PrintHexValue 120,s6,s1
+
+li s1, 0x132C 
+sw s1,COM_DELAY(a0)
+
+lw s1,COM_DELAY(a0)
+nop
+PrintHexValue 220,s6,s1
 
 ; header
-PrintText 20,s6,TEXT_TEST
-PrintText 200,s6,TEXT_CYCLES
-PrintText 260,s6,TEXT_PS1
 addiu s6,10
 
 ; timings -> print read out values and what is assumed for test -> should be equal
@@ -403,7 +412,7 @@ TESTSPASS: .dw 0x0
   
 TEXT_MEMCONTROL:                 .db "MEMCONTROL",0
 
-TEXT_TEST:                       .db "TEST",0
+TEXT_COM_DELAY:                  .db "COM_DELAY",0
 TEXT_OUTOF:                      .db "OUT OF ",0
 TEXT_TP:                         .db "TESTS PASS",0
 TEXT_CYCLES:                     .db "CYCLES",0

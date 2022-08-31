@@ -31,6 +31,17 @@ DMA:
 
 Pipeline:
 - PipelineInternelRegs: testing write pipelining and write queue using writes and (stalling) reads to Timer registers
+- PipelineRAMwrite: testing write pipelining and write queue using writes and Main RAM
+- PipelineRAMread: testing timing of reads from Main RAM
+- PipelineSPU: testing write pipelining and write queue using writes and (stalling) reads to SPU registers
+
+ExtBUS:
+- ExtBusBusWidth: testing timing using different width
+- ExtBusDelay: testing timing using different read/write delays
+- ExtBusFloatRelease: testing timing with FloatRelease on/off
+- ExtBusHold: testing timing with Hold on/off
+- ExtBusPreStrobe: testing timing with Pre-Strobe on/off
+- ExtBusRecovery: testing timing Recovery on/off
 
 -------------
 Original readme from Krom
