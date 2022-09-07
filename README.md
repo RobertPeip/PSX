@@ -34,6 +34,7 @@ Pipeline:
 - PipelineRAMwrite: testing write pipelining and write queue using writes and Main RAM
 - PipelineRAMread: testing timing of reads from Main RAM
 - PipelineSPU: testing write pipelining and write queue using writes and (stalling) reads to SPU registers
+- PipelineCD: testing write pipelining and write queue using writes and (stalling) reads to CD registers
 
 ExtBUS:
 - ExtBusBusWidth: testing timing using different width

@@ -118,9 +118,12 @@ PrintText 240,s6,TEXT_W
 PrintText 270,s6,TEXT_PS1
 addiu s6,10
 
-; init com delay
+; init delays
 li s1, 0x132C 
 sw s1,COM_DELAY(a0)
+
+li s1, 0x20943
+sw s1,CDROM_DELAY(a0)
 
 ; instruction tests
 Widthtest TEXT_SPAD , 0x1F800000, 16, 16, 16
