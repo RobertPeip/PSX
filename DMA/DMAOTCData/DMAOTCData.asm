@@ -8,13 +8,11 @@
 
 .org 0x80010000 ; Entry Point Of Code
 
-OTC_START equ 0x00100000
-
 ;-----------------------------------------------------------------------------
 ; test macros
 ;-----------------------------------------------------------------------------
 
-.macro SingleTest,otclength, ps1time_low, ps1time_high
+.macro SingleTest, testfunction, testname, otclength, ps1time_low, ps1time_high
 
    .align 4096 ;make sure it fits in cache together with executing function
    nop
@@ -22,8 +20,7 @@ OTC_START equ 0x00100000
    
    WRIOH T0_CNTT,0x8000 ; target
    
-   li s3,100 ; runcount
-   li s2,0
+   li s3,2 ; runcount
    
    li s5, otclength
    
@@ -34,11 +31,12 @@ OTC_START equ 0x00100000
    
       WRIOH T0_CNTM,0x0008 ; reset
       RDIOH T0_CNT,s1
-      jal test_RUNOTC
+      move s2, s1
+      
+      jal testfunction
       nop
-      RDIOH T0_CNT,s4
-      sub s4,s1
-      add s2,s4
+      RDIOH T0_CNT,s2
+      sub s2,s1
       
       jal test_COMPAREOTC
       nop
@@ -51,10 +49,8 @@ OTC_START equ 0x00100000
       
       bne s3,1,checkloop
       subiu s3,1
-
-   li t0,100
-   div s2,t0
-   mflo s1
+      
+   move s1, s2
    
    li s2, ps1time_low
    li s3, ps1time_high
@@ -80,8 +76,8 @@ OTC_START equ 0x00100000
    sw t1, 0(a2)
    testfail:
    
-   PrintText 20,s6,TEXT_OTC_LEN
-   PrintDezValue 80,s6,s5
+   PrintText 20,s6,testname
+   PrintDezValue 100,s6,s5
    
    bnez t7,singletest_error
    nop
@@ -150,18 +146,38 @@ PrintText 260,s6,TEXT_PS1_HIGH
 addiu s6,10
 
 ; instruction tests
-SingleTest   1,  31,  31
-SingleTest   2,  37,  37
-SingleTest   3,  38,  38
-SingleTest   4,  39,  39
-SingleTest   5,  41,  41
-SingleTest  10,  45,  45
-SingleTest  16,  52,  52
-SingleTest  31,  66,  66
-SingleTest  64, 102, 102
-SingleTest 127, 167, 167
-SingleTest 256, 302, 302
-SingleTest 511, 575, 576
+
+li s4, 0x00100000
+
+SingleTest  test_EMPTY     , TEXT_EMPTY      ,    0,  11,  11
+SingleTest  test_SETUP     , TEXT_SETUP      ,    0,  22,  22
+SingleTest  test_WAITDONE  , TEXT_WAITDONE   ,    0,  31,  31
+
+PrintText 20,s6,TEXT_OTC_START
+PrintHexValue 100,s6,s4
+addiu s6,10
+
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,    1,  35,  35
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,    2,  41,  41
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,    3,  42,  44
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,    4,  43,  46
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,    5,  44,  47
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,   10,  49,  54
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,   16,  55,  56
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,   31,  70,  80
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,   64, 103, 113
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,  127, 166, 176
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,  256, 305, 306
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,  511, 575, 580
+
+li s4, 0x0010FFFC
+PrintText 20,s6,TEXT_OTC_START
+PrintHexValue 100,s6,s4
+addiu s6,10
+
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,    1,  35,  35
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,    2,  36,  36
+SingleTest  test_RUNOTC    , TEXT_OTC_LEN    ,    3,  37,  37
 
 ; results
 la a2,TESTSPASS
@@ -190,7 +206,7 @@ endloop:
 
 .align 64
 test_PREPAREOTC:  
-   li t0,OTC_START
+   move t0,s4
    li t1,0
    move t2,s5
    PREPAREOTC_loop:
@@ -204,8 +220,51 @@ jr $31
 nop
 
 .align 64
+test_EMPTY:
+jr $31
+nop
+
+.align 64
+test_SETUP:  
+   move t0,s4
+   sw t0,D6_MADR(a0)
+   sw s5,D6_BCR(a0)
+   lui t0,0x0000
+   addiu t0,0x2    
+   sw t0,D6_CHCR(a0)
+   nop
+   nop
+   nop
+   nop
+   li t1, 0x01000000
+jr $31
+nop
+
+.align 64
+test_WAITDONE:  
+   move t0,s4
+   sw t0,D6_MADR(a0)
+   sw s5,D6_BCR(a0)
+   lui t0,0x0000 ; write like this to have same timing behavior as real test
+   addiu t0,0x2  ; write like this to have same timing behavior as real test  
+   sw t0,D6_CHCR(a0)
+   nop
+   nop
+   nop
+   nop
+   li t1, 0x01000000
+   WAITDONE_wait:
+      lw t0, D6_CHCR(a0)
+      nop
+      and t0, t1
+      bnez t0,WAITDONE_wait 
+   nop
+jr $31
+nop
+
+.align 64
 test_RUNOTC:  
-   li t0,OTC_START
+   move t0,s4
    sw t0,D6_MADR(a0)
    sw s5,D6_BCR(a0)
    li t0,0x11000002
@@ -226,8 +285,8 @@ nop
 
 .align 64
 test_COMPAREOTC:  
-   li t0,OTC_START
-   li t1,OTC_START
+   move t0,s4
+   move t1,s4
    subiu t1,4
    move t2,s5
    li t7,0
@@ -278,7 +337,11 @@ TEXT_CYCLES:         .db "CYCLES",0
 TEXT_PS1_LOW:        .db "PS1LO",0
 TEXT_PS1_HIGH:       .db "PS1HI",0
    
+TEXT_EMPTY:          .db "EMPTY",0
+TEXT_SETUP:          .db "SETUP",0
+TEXT_WAITDONE:       .db "WAITDONE",0
 TEXT_OTC_LEN:        .db "OTC LEN",0
+TEXT_OTC_START:      .db "OTC START",0
 TEXT_ERROR:          .db "ERROR",0
 
 .close
