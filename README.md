@@ -1,7 +1,8 @@
 ## PSX Tests
 
-Collection of assembler applications by Krom.
-Expanded to test more details of the original PSX hardware.
+Collection of assembler applications. Many tests and library by Krom.
+
+Expanded with the following tests to cover more details of the original PSX hardware:
 
 Timing: 
 - TimingCPU: test internal CPU performance - normal commands, mul and div
@@ -36,6 +37,7 @@ Pipeline:
 - PipelineSPU: testing write pipelining and write queue using writes and (stalling) reads to SPU registers
 - PipelineCD: testing write pipelining and write queue using writes and (stalling) reads to CD registers
 - PipelineCPULoadDelay: testing loaded data for various load and load-after-load situation
+- PipelineInstructionCache: testing cache fetch timing from aligned and unaligned addresses
 
 ExtBUS:
 - ExtBusBusWidth: testing timing using different width
@@ -44,6 +46,9 @@ ExtBUS:
 - ExtBusHold: testing timing with Hold on/off
 - ExtBusPreStrobe: testing timing with Pre-Strobe on/off
 - ExtBusRecovery: testing timing Recovery on/off
+
+
+Hint: most timing tests will fail if the basic TimerCalib tests are not pass
 
 -------------
 Original readme from Krom
