@@ -38,6 +38,8 @@ Pipeline:
 - PipelineCD: testing write pipelining and write queue using writes and (stalling) reads to CD registers
 - PipelineCPULoadDelay: testing loaded data for various load and load-after-load situation
 - PipelineInstructionCache: testing cache fetch timing from aligned and unaligned addresses
+- PipelineInstructionNoCache: testing execution timing without instruction cache and combination with parallel store/load
+- PipelineInstructionBIOS: testing execution timing with cached and uncached BIOS instruction (tested against 7502)
 
 ExtBUS:
 - ExtBusBusWidth: testing timing using different width
