@@ -28,7 +28,12 @@ GTE:
 
 DMA:
 - DMATimingToDevice: testing DMA to SPU performance and delays. TODO: should be renamed or contain more devices
-- DMAOTCData: check data integrity and speed or different OTC DMA sizes
+- DMAOTCData: check data integrity and speed of different OTC DMA sizes
+- DMACD: check speed of different DMA sizes
+- DMAGPU: check speed of different DMA sizes
+- DMAMDECIN: check speed of different DMA sizes
+- DMAMDECOUT: check speed of different DMA sizes
+- DMASPU: check speed of different DMA sizes
 
 Pipeline:
 - PipelineInternelRegs: testing write pipelining and write queue using writes and (stalling) reads to Timer registers
