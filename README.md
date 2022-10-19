@@ -27,6 +27,7 @@ GTE:
 - GTETiming: check execution time of all GTE commands
 
 DMA:
+- DMAPARALLEL: testing DMA and CPU running in parallel(CPU does not stall when DMA is running unless memory or IO regs are accessed)
 - DMATimingToDevice: testing DMA to SPU performance and delays. TODO: should be renamed or contain more devices
 - DMAOTCData: check data integrity and speed of different OTC DMA sizes
 - DMACD: check speed of different DMA sizes
