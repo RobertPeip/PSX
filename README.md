@@ -36,6 +36,7 @@ DMA:
 - DMAMDECIN: check speed of different DMA sizes
 - DMAMDECOUT: check speed of different DMA sizes
 - DMASPU: check speed of different DMA sizes
+- DMASPUDELAY: check SPU DMA speed for different memctrl settings
 
 Pipeline:
 - PipelineInternelRegs: testing write pipelining and write queue using writes and (stalling) reads to Timer registers
