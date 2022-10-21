@@ -123,6 +123,16 @@ sh t0,SPUCNT(a0)
 ; test execution
 ;-----------------------------------------------------------------------------
 
+; set new timings
+;li s1, 0x220931E1
+li s1, 0x200931E1
+sw s1,SPU_DELAY(a0)
+
+;li s1, 0x00031125 
+;li s1, 0x00001325 
+li s1, 0x0000132C 
+sw s1,COM_DELAY(a0)
+
 li s6, 20 ; y pos
 
 ; header
@@ -133,9 +143,10 @@ PrintText 260,s6,TEXT_PS1_HIGH
 addiu s6,10
 
 ; instruction tests
-SingleTest TEXT_SPU1BLOCK1  , test_SPU1BLOCK1  , 37, 37
-SingleTest TEXT_SPU1BLOCK16 , test_SPU1BLOCK16 , 97, 101
-SingleTest TEXT_SPU16BLOCK16, test_SPU16BLOCK16, 16607, 16770
+SingleTest TEXT_SPU1BLOCK1  , test_SPU1BLOCK1INSTANT  , 37, 42
+SingleTest TEXT_SPU1BLOCK1  , test_SPU1BLOCK1         , 37, 42
+SingleTest TEXT_SPU1BLOCK16 , test_SPU1BLOCK16        , 97, 101
+SingleTest TEXT_SPU16BLOCK16, test_SPU16BLOCK16       , 16607, 16770
 
 ; results
 la a2,TESTSPASS
@@ -161,6 +172,27 @@ endloop:
 ;-----------------------------------------------------------------------------
 
 .align 4096 ; make sure it fits in cache together with executing loop
+
+.align 64
+test_SPU1BLOCK1INSTANT:
+   li t0,0x00010001  
+   sw t0,D4_BCR(a0)
+   li t0,0x11000001
+   sw t0,D4_CHCR(a0)
+   nop
+   nop
+   nop
+   nop
+   li t1, 0x01000000
+   SPU1BLOCK1INSTANT_wait:
+      lw t0, D4_CHCR(a0)
+      nop
+      and t0, t1
+      bnez t0,SPU1BLOCK1INSTANT_wait 
+   nop
+jr $31
+nop
+
 
 .align 64
 test_SPU1BLOCK1:

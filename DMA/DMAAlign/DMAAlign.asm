@@ -1,6 +1,6 @@
 ; PSX 'Bare Metal' Test
 .psx
-.create "DMASPU.bin", 0x80010000
+.create "DMAAlign.bin", 0x80010000
 
 .include "../../LIB/PSX.INC" ; Include PSX Definitions
 .include "../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
@@ -68,7 +68,7 @@
    testfail:
    
    PrintText 20,s6,testname
-   PrintDezValue 130,s6,s5
+   PrintDezValue 100,s6,s5
    
    PrintDezValue 160,s6,s1
    PrintDezValue 210,s6,s2
@@ -121,14 +121,7 @@ sw t0,DICR(a0)
 ; test execution
 ;-----------------------------------------------------------------------------
 
-; set new timings
-li s1, 0x220931E1
-sw s1,SPU_DELAY(a0)
-
-li s1, 0x132C 
-sw s1,COM_DELAY(a0)
-
-li s6, 10 ; y pos
+li s6, 20 ; y pos
 
 ; header
 PrintText 20,s6,TEXT_TEST
@@ -140,38 +133,44 @@ addiu s6,10
 ; instruction tests
 
 li s4, 0x00100000
+PrintText 20,s6,TEXT_DMA_START
+PrintHexValue 100,s6,s4
+addiu s6,10
 
 SingleTest  test_EMPTY     , TEXT_EMPTY      ,    0,  11,  11
 SingleTest  test_SETUP     , TEXT_SETUP      ,    0,  22,  22
 SingleTest  test_WAITDONE  , TEXT_WAITDONE   ,    0,  31,  31
 
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    1,  35,  35
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    2,  36,  36
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    5,  39,  39
+
+li s4, 0x00100004
 PrintText 20,s6,TEXT_DMA_START
 PrintHexValue 100,s6,s4
 addiu s6,10
 
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    1,  44,  44
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    2,  52,  52
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    3,  60,  60
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    4,  68,  73
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    5,  76,  81
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,   10, 116, 116
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,   16, 164, 164
-                                                                
-SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    1,  41,  41
-SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    2,  49,  49
-SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,   16, 161, 168
-                                                                
-li s4, 0x0010FFFC                                               
-PrintText 20,s6,TEXT_DMA_START                                  
-PrintHexValue 100,s6,s4                                         
-addiu s6,10                                                     
-                                                                
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    1,  44,  44
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    2,  52,  52
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    3,  60,  60
-                                                                
-SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    1,  41,  41
-SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    3,  57,  57
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    1,  35,  35
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    2,  36,  36
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    5,  39,  39
+
+li s4, 0x00100008
+PrintText 20,s6,TEXT_DMA_START
+PrintHexValue 100,s6,s4
+addiu s6,10
+
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    1,  35,  35
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    2,  36,  36
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    5,  39,  39
+
+li s4, 0x0010000C
+PrintText 20,s6,TEXT_DMA_START
+PrintHexValue 100,s6,s4
+addiu s6,10
+
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    1,  35,  35
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    2,  36,  36
+SingleTest  test_RUNDMA    , TEXT_DMA_LEN    ,    5,  39,  39
 
 ; results
 la a2,TESTSPASS
@@ -221,11 +220,11 @@ nop
 .align 64
 test_SETUP:  
    move t0,s4
-   sw t0,D4_MADR(a0)
-   sw s5,D4_BCR(a0)
+   sw t0,D0_MADR(a0)
+   sw s5,D0_BCR(a0)
    lui t0,0x0000
    addiu t0,0x2    
-   sw t0,D4_CHCR(a0)
+   sw t0,D0_CHCR(a0)
    nop
    nop
    nop
@@ -237,18 +236,18 @@ nop
 .align 64
 test_WAITDONE:  
    move t0,s4
-   sw t0,D4_MADR(a0)
-   sw s5,D4_BCR(a0)
+   sw t0,D0_MADR(a0)
+   sw s5,D0_BCR(a0)
    lui t0,0x0000 ; write like this to have same timing behavior as real test
    addiu t0,0x2  ; write like this to have same timing behavior as real test  
-   sw t0,D4_CHCR(a0)
+   sw t0,D0_CHCR(a0)
    nop
    nop
    nop
    nop
    li t1, 0x01000000
    WAITDONE_wait:
-      lw t0, D4_CHCR(a0)
+      lw t0, D0_CHCR(a0)
       nop
       and t0, t1
       bnez t0,WAITDONE_wait 
@@ -257,43 +256,22 @@ jr $31
 nop
 
 .align 64
-test_RUNDMA_IN:  
+test_RUNDMA:  
    move t0,s4
-   sw t0,D4_MADR(a0)
-   sw s5,D4_BCR(a0)
+   sw t0,D0_MADR(a0)
+   sw s5,D0_BCR(a0)
    li t0,0x11000001
-   sw t0,D4_CHCR(a0)
+   sw t0,D0_CHCR(a0)
    nop
    nop
    nop
    nop
    li t1, 0x01000000
    RUNDMA_wait:
-      lw t0, D4_CHCR(a0)
+      lw t0, D0_CHCR(a0)
       nop
       and t0, t1
       bnez t0,RUNDMA_wait 
-   nop
-jr $31
-nop
-
-.align 64
-test_RUNDMA_OUT:  
-   move t0,s4
-   sw t0,D4_MADR(a0)
-   sw s5,D4_BCR(a0)
-   li t0,0x11000000
-   sw t0,D4_CHCR(a0)
-   nop
-   nop
-   nop
-   nop
-   li t1, 0x01000000
-   RUNDMA_OUT_wait:
-      lw t0, D4_CHCR(a0)
-      nop
-      and t0, t1
-      bnez t0,RUNDMA_OUT_wait 
    nop
 jr $31
 nop
@@ -321,8 +299,7 @@ TEXT_PS1_HIGH:       .db "PS1HI",0
 TEXT_EMPTY:          .db "EMPTY",0
 TEXT_SETUP:          .db "SETUP",0
 TEXT_WAITDONE:       .db "WAITDONE",0
-TEXT_DMA_IN_LEN:     .db "DMA IN LEN",0
-TEXT_DMA_OUT_LEN:    .db "DMA OUT LEN",0
+TEXT_DMA_LEN:        .db "DMA LEN",0
 TEXT_DMA_START:      .db "DMA START",0
 TEXT_ERROR:          .db "ERROR",0
 

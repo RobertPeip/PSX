@@ -1,6 +1,6 @@
 ; PSX 'Bare Metal' Test
 .psx
-.create "DMASPU.bin", 0x80010000
+.create "DMASPUDELAY.bin", 0x80010000
 
 .include "../../LIB/PSX.INC" ; Include PSX Definitions
 .include "../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
@@ -121,13 +121,6 @@ sw t0,DICR(a0)
 ; test execution
 ;-----------------------------------------------------------------------------
 
-; set new timings
-li s1, 0x220931E1
-sw s1,SPU_DELAY(a0)
-
-li s1, 0x132C 
-sw s1,COM_DELAY(a0)
-
 li s6, 10 ; y pos
 
 ; header
@@ -145,33 +138,49 @@ SingleTest  test_EMPTY     , TEXT_EMPTY      ,    0,  11,  11
 SingleTest  test_SETUP     , TEXT_SETUP      ,    0,  22,  22
 SingleTest  test_WAITDONE  , TEXT_WAITDONE   ,    0,  31,  31
 
-PrintText 20,s6,TEXT_DMA_START
-PrintHexValue 100,s6,s4
+; different delays 
+PrintText 20,s6,TEXT_COM_DLY
+PrintText 180,s6,TEXT_SPU
+
+li s1, 0x0000132C 
+sw s1,COM_DELAY(a0)
+PrintHexValue 90,s6,s1
+
+li s1, 0x200931E1
+sw s1,SPU_DELAY(a0)
+PrintHexValue 230,s6,s1
+
+addiu s6,10
+
+SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    1,  40,  40
+SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    2,  44,  44
+SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,   16, 100, 105
+                                                                
+SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    1,  37,  37
+SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    2,  41,  41
+SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,   16,  97,  97
+
+; different delays 
+PrintText 20,s6,TEXT_COM_DLY
+PrintText 180,s6,TEXT_SPU
+
+li s1, 0x0000132C 
+sw s1,COM_DELAY(a0)
+PrintHexValue 90,s6,s1
+
+li s1, 0x220931E1
+sw s1,SPU_DELAY(a0)
+PrintHexValue 230,s6,s1
+
 addiu s6,10
 
 SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    1,  44,  44
 SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    2,  52,  52
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    3,  60,  60
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    4,  68,  73
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    5,  76,  81
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,   10, 116, 116
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,   16, 164, 164
+SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,   16, 164, 169
                                                                 
-SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    1,  41,  41
+SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    1,  41,  50
 SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    2,  49,  49
 SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,   16, 161, 168
-                                                                
-li s4, 0x0010FFFC                                               
-PrintText 20,s6,TEXT_DMA_START                                  
-PrintHexValue 100,s6,s4                                         
-addiu s6,10                                                     
-                                                                
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    1,  44,  44
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    2,  52,  52
-SingleTest  test_RUNDMA_IN    , TEXT_DMA_IN_LEN    ,    3,  60,  60
-                                                                
-SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    1,  41,  41
-SingleTest  test_RUNDMA_OUT   , TEXT_DMA_OUT_LEN   ,    3,  57,  57
 
 ; results
 la a2,TESTSPASS
@@ -324,6 +333,8 @@ TEXT_WAITDONE:       .db "WAITDONE",0
 TEXT_DMA_IN_LEN:     .db "DMA IN LEN",0
 TEXT_DMA_OUT_LEN:    .db "DMA OUT LEN",0
 TEXT_DMA_START:      .db "DMA START",0
+TEXT_SPU:            .db "SPU=",0
+TEXT_COM_DLY:        .db "COM DLY=",0
 TEXT_ERROR:          .db "ERROR",0
 
 .close
