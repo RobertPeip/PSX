@@ -28,6 +28,7 @@ GTE:
 
 DMA:
 - DMAPARALLEL: testing DMA and CPU running in parallel(CPU does not stall when DMA is running unless memory or IO regs are accessed)
+- DMACPUStall: testing which actions will stop DMA and CPU running in parallel
 - DMAAling: testing DMA speed for different start addresses
 - DMATimingToDevice: testing DMA to SPU performance and delays. TODO: should be renamed or contain more devices
 - DMAOTCData: check data integrity and speed of different OTC DMA sizes
