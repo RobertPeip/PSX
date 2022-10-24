@@ -38,6 +38,8 @@ DMA:
 - DMAMDECOUT: check speed of different DMA sizes
 - DMASPU: check speed of different DMA sizes
 - DMASPUDELAY: check SPU DMA speed for different memctrl settings
+- DMABLOCKGPU: check DMA speed and pausing between blocks in request mode for different block sizes and block counts
+- DMALINKEDLIST: check DMA speed and pausing between blocks in linked list mode for different block sizes and list lengths
 
 Pipeline:
 - PipelineInternelRegs: testing write pipelining and write queue using writes and (stalling) reads to Timer registers
