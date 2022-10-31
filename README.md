@@ -60,6 +60,8 @@ ExtBUS:
 - ExtBusPreStrobe: testing timing with Pre-Strobe on/off
 - ExtBusRecovery: testing timing Recovery on/off
 
+JOY:
+- Joypad: tests data connection and latency/timing for any pad connected to port 1
 
 Hint: most timing tests will fail if the basic TimerCalib tests are not pass
 
