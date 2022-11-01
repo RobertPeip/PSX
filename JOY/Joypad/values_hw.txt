@@ -1,0 +1,16 @@
+Time                   |   Data Min   Data Max  |  Ack High Min   Ack High Max  | Ack Low Min   Ack Low Max |  Total Min    Total Max
+-----------------------|------------------------|-------------------------------|---------------------------|-------------------------
+DS DIGITAL             |    1302      1437      |    1399            1792       |     1486         1869     |    8830         9110
+DS ANALOG              |    1302      1437      |    1450            1740       |     1523         1740     |   16040        16318
+DS2 DIGITAL            |    1302      1437      |    1520            1679       |     1616         1773     |
+DS2 ANALOG             |    1302      1437      |    1520            1679       |     1616         1775     |
+DIGITAL                |    1302      1437      |    1552            1798       |     1641         1901     |
+MOUSE                  |                        |                               |                           |
+NEGCON                 |    1302      1437      |    1443            1871       |     1512         1931     |
+KONAMI LIGHTGUN        |                        |                               |                           |
+ANALOG STICK           |                        |                               |                           |
+NAMCO LIGHTGUN         |    1341      1437      |    1470            1571       |     1541         1645     |
+ANALOG PAD             |                        |                               |                           |
+MULTITAP               |    1341      1437      |    2575            2597       |     2623         2639     |
+JOGCON Digital mode    |    1341      1428      |    1469            1569       |     1541         1638     |
+

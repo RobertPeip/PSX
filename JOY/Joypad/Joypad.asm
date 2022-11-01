@@ -151,6 +151,10 @@ read_pad:
       bnez s3,waitEnd
       subiu s3,1
    
+   ; start timer for total time
+   WRIOH T1_CNTT,0x8000 ; target
+   WRIOH T1_CNTM,0x0008 ; reset
+   
    ; first byte: controller access
    li t0,0x0001
    sh t0,JOY_DATA(a0)
@@ -203,6 +207,7 @@ readNextByte:
       nop
       
    RDIOH T0_CNT,s4
+   RDIOH T1_CNT,s7
 
    ; wait ack
    li s2,0
@@ -233,6 +238,28 @@ readNextByte:
       nop
       
    RDIOH T0_CNT,s6
+   
+   ; adjust total time if no ack
+   bnez s2,noadjust_totalmax
+   nop
+   
+   la a1,TIMETOTALMIN
+   lh t1,0(a1)
+   nop
+   sltu t0, s7, t1
+   beqz t0,noadjust_totalmin
+   nop
+   sh s7,0(a1)
+   noadjust_totalmin:
+   
+   la a1,TIMETOTALMAX
+   lh t1,0(a1)
+   nop
+   sltu t0, t1, s7
+   beqz t0,noadjust_totalmax
+   nop
+   sh s7,0(a1)
+   noadjust_totalmax:
    
    ; load old byte count
    la a1,DATABYTES
@@ -388,10 +415,10 @@ nop
 .align 256
 print_minmax:
 
-   li s6,60 
+   li s6,50 
    PrintText 20,s6,TEXT_MINMAXHEADER
    
-   li s6,70
+   li s6,60
    PrintText 20,s6,TEXT_TIMEDATA
    la a1,TIMEDATAMIN
    lh s2,0(a1)
@@ -402,7 +429,7 @@ print_minmax:
    nop
    PrintDezValue 160,s6,s2
    
-   li s6,80
+   li s6,70
    PrintText 20,s6,TEXT_TIMEACKHI
    la a1,TIMEACKHIMIN
    lh s2,0(a1)
@@ -413,13 +440,24 @@ print_minmax:
    nop
    PrintDezValue 160,s6,s2
    
-   li s6,90
+   li s6,80
    PrintText 20,s6,TEXT_TIMEACKLO
    la a1,TIMEACKLOMIN
    lh s2,0(a1)
    nop
    PrintDezValue 100,s6,s2
    la a1,TIMEACKLOMAX
+   lh s2,0(a1)
+   nop
+   PrintDezValue 160,s6,s2
+   
+   li s6,90
+   PrintText 20,s6,TEXT_TIMETOTAL
+   la a1,TIMETOTALMIN
+   lh s2,0(a1)
+   nop
+   PrintDezValue 100,s6,s2
+   la a1,TIMETOTALMAX
    lh s2,0(a1)
    nop
    PrintDezValue 160,s6,s2
@@ -430,7 +468,7 @@ nop
 .align 256
 print_type:
 
-   li s6,40 
+   li s6,35 
    PrintText 20,s6,TEXT_TYPE
 
    la a1,DATABYTES
@@ -595,6 +633,11 @@ clear_minmax:
    la a1,TIMEACKLOMIN
    sh t0,0(a1)
    la a1,TIMEACKLOMAX
+   sh t1,0(a1)   
+   
+   la a1,TIMETOTALMIN
+   sh t0,0(a1)
+   la a1,TIMETOTALMAX
    sh t1,0(a1)
    
    clear_done:
@@ -630,6 +673,8 @@ TIMEACKHIMIN: .dh 0xFFFF
 TIMEACKHIMAX: .dh 0x0000
 TIMEACKLOMIN: .dh 0xFFFF
 TIMEACKLOMAX: .dh 0x0000
+TIMETOTALMIN: .dh 0xFFFF
+TIMETOTALMAX: .dh 0x0000
   
 TEXT_TITLE:          .db "JOYPAD TEST - RAW DATA AND TIMING",0
 TEXT_HEADER:         .db "BYTE DATA  T-DATA  T-ACKHI  T-ACKLO",0
@@ -637,6 +682,7 @@ TEXT_MINMAXHEADER:   .db "TIME      MIN     MAX  (START=CLEAR)",0
 TEXT_TIMEDATA:       .db "DATA",0
 TEXT_TIMEACKHI:      .db "ACK HIGH",0
 TEXT_TIMEACKLO:      .db "ACK LOW",0
+TEXT_TIMETOTAL:      .db "TOTAL",0
 
 TEXT_TYPE:           .db "TYPE:",0
 TEXT_NONE:           .db "NONE",0
