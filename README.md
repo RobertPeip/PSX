@@ -40,6 +40,7 @@ DMA:
 - DMASPUDELAY: check SPU DMA speed for different memctrl settings
 - DMABLOCKGPU: check DMA speed and pausing between blocks in request mode for different block sizes and block counts
 - DMALINKEDLIST: check DMA speed and pausing between blocks in linked list mode for different block sizes and list lengths
+- DMAWrap: check if data is written to RAM when wrapping around 2/8MByte address borders -> screenshot attached to compare against HW 
 
 Pipeline:
 - PipelineInternelRegs: testing write pipelining and write queue using writes and (stalling) reads to Timer registers
