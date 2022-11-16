@@ -1,0 +1,2 @@
+armips TimingGPUSTAT_Vsync480i.asm
+bin2exe.py TimingGPUSTAT_Vsync480i.bin TimingGPUSTAT_Vsync480i.exe

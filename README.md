@@ -10,6 +10,8 @@ Timing:
 - TimingStoreRAM: test sdram write performance and writefifo behavior
 - TimingLoadReg: test read performance from different busses
 - TimingStoreReg: test write performance to different busses
+- TimingGPUSTAT_Vsync240p: test GPUSTAT behavior starting with vsync(tested against 7502)
+- TimingGPUSTAT_Vsync480i: test GPUSTAT behavior starting with vsync(tested against 7502) - 50% chance to get in the values checked against, maybe startup conditions?
 
 Timer:
 - TimerCalib: test resetting timer and reading it for calibration. Also TMR2 in Div8 mode and wraparound at 0xFFFF
