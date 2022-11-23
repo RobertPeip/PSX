@@ -58,8 +58,11 @@ FillRectVRAM 0x000000, 0,0, 1023,511 ; Fill Rectangle In VRAM: Color, X,Y, Width
 ; test prepare
 ;-----------------------------------------------------------------------------
 
-li t0,0x0001
+li t0,0x0000
 sw t0,I_MASK(a0)
+
+li t0,0
+mtc0 t0,sr
 
 ;-----------------------------------------------------------------------------
 ; test execution
@@ -76,7 +79,7 @@ PrintText 260,s6,TEXT_PS1MAX
 addiu s6,10
 
 ; wait for 2 vsyncs
-li s1, 1
+li s1, 2
 waitfirstvsync:  
    li t1,0x0001
    lw t0,I_STAT(a0)
@@ -105,7 +108,7 @@ waitvsync:
 WRIOH T2_CNTM,0x0200 ; reset and clk/8
 ; capture some status changes after vsync
 li s3,1
-li s4,10
+li s4,8
 gpustat_loop:
    RDIOW GPUSTAT,s1
    beq s1,s2,nochange
@@ -129,6 +132,35 @@ gpustat_loop:
    addiu s3,1
    nochange:
    bne s3,s4, gpustat_loop
+   nop
+   
+WRGP1 GPUDISPV,0x00040011 ; Write GP1 Command Word (Vertical Display Range
+   
+; capture more status changes after Vertical Display Range update
+li s4,14
+gpustat_loop2:
+   RDIOW GPUSTAT,s1
+   beq s1,s2,nochange2
+   nop
+   RDIOH T2_CNT,s5
+   RDIOH T2_CNTM,s7
+   WRIOH T2_CNTM,0x0200 ; reset and clk/8
+   storeArrayWord s1, DATARECEIVE, s3
+   
+   ; add 0x10000 in case of overflow
+   li t0, 0x1000
+   and s7, t0
+   beqz s7,nooverflow2
+   nop
+   li t0,0x10000
+   addu s5,t0
+   nooverflow2:
+   
+   storeArrayWord s5, TIMERECEIVE, s3
+   move s2,s1
+   addiu s3,1
+   nochange2:
+   bne s3,s4, gpustat_loop2
    nop
 
 ; print out word before vsync
@@ -162,7 +194,7 @@ addiu s6,10
 
 ; print out all status changes and check for errors
 li s3,1
-li s4,10
+li s4,14
 print_loop:
    ; print
    loadArrayWord s1, DATARECEIVE, s3
@@ -251,9 +283,9 @@ TESTSPASS: .dw 0x0
 DATARECEIVE: .dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 TIMERECEIVE: .dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 
-DATAPS1    : .dw 0x144A2400,0x144A0400,0x944A0400,0x144A0400,0x144A2400,0x144A0400,0x944A0400,0x144A0400,0x144A2400,0x144A0400
-TIMEMIN    : .dw 0,66900,4612,65427,1093,71412,4612,65427,1093,71412
-TIMEMAX    : .dw 0,66900,4615,65430,1096,71414,4615,65430,1096,71414
+DATAPS1    : .dw 0x144A2400,0x144A0400,0x944A0400,0x144A0400,0x144A2400,0x144A0400,0x944A0400,0x144A0400,0x144A2400,0x144A0400,0x944A0400,0x144A0400,0x144A2400,0x144A0400
+TIMEMIN    : .dw 0,67161,4612,65167,1356,71412,4612,65167,1356,71411,4884,64896,1356,71412
+TIMEMAX    : .dw 0,67163,4615,65168,1358,71414,4615,65168,1358,71414,4886,64897,1358,71414
   
 TEXT_TEST:       .db "TEST",0
 TEXT_PS1:        .db "PS1",0

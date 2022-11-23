@@ -5,32 +5,13 @@
 .include "../../LIB/PSX.INC" ; Include PSX Definitions
 .include "../../LIB/PSX_GPU.INC" ; Include PSX GPU Definitions & Macros
 .include "../../LIB/Print.INC"
+.include "../../LIB/Variables.INC"
 
 .org 0x80010000 ; Entry Point Of Code
 
 ;-----------------------------------------------------------------------------
 ; test macros
 ;-----------------------------------------------------------------------------
-
-.macro storeArrayWord,source,base,index
-
-   la a2,base
-   sll t0, index, 2
-   addu a2,t0
-   sw source,0(a2)
-   nop
-
-.endmacro
-
-.macro loadArrayWord,target,base,index
-
-   la a2,base
-   sll t0, index, 2
-   addu a2,t0
-   lw target,0(a2)
-   nop
-
-.endmacro
 
 ;-----------------------------------------------------------------------------
 ; initialize video
@@ -58,8 +39,13 @@ FillRectVRAM 0x000000, 0,0, 1023,511 ; Fill Rectangle In VRAM: Color, X,Y, Width
 ; test prepare
 ;-----------------------------------------------------------------------------
 
-li t0,0x0001
+li t0,0x0000
 sw t0,I_MASK(a0)
+
+WRIOH T0_CNTT,0x8000 ; target
+
+li t0,0
+mtc0 t0,sr
 
 ;-----------------------------------------------------------------------------
 ; test execution
@@ -68,105 +54,91 @@ sw t0,I_MASK(a0)
 li s6, 20 ; y pos
 
 ; header
-PrintText 20,s6,TEXT_TEST
-PrintText 80,s6,TEXT_PS1
-PrintText 140,s6,TEXT_CYCLES
-PrintText 200,s6,TEXT_PS1MIN
-PrintText 260,s6,TEXT_PS1MAX
+PrintText 40,s6,TEXT_TEST
+PrintText 110,s6,TEXT_PS1
+PrintText 160,s6,TEXT_CYCLES
+PrintText 220,s6,TEXT_PS1MIN
+PrintText 270,s6,TEXT_PS1MAX
 addiu s6,10
 
-; wait for 2 vsyncs
-li s1, 1
-waitfirstvsync:  
-   li t1,0x0001
-   lw t0,I_STAT(a0)
-   nop
-   and t0,t1
-   bne t0,t1,waitfirstvsync 
-   nop
-   li t1,0
-   sw t1,I_STAT(a0)
-   bnez s1, waitfirstvsync
-   subiu s1,1
+; wait for 2 vsyncs after reset
+li t1,0
+sw t1,I_STAT(a0)
+jal waitVsync :: nop 
+jal waitVsync :: nop
 
-; capture status before vsync and wait for vsync
-li s3,0
-li t1,0x0001
-waitvsync:  
-   move s2,s1
-   lw s1,GPUSTAT(a0)
-   lw t0,I_STAT(a0)
-   nop
-   and t0,t1
-   bne t0,t1,waitvsync
-   nop
-   storeArrayWord s2, DATARECEIVE, s3
-   
-WRIOH T0_CNTT,0x8000 ; target
-WRIOH T0_CNTM,0x0008 ; reset
-; capture some status changes after vsync
-li s3,1
-li s4,10
-gpustat_loop:
-   RDIOW GPUSTAT,s1
-   beq s1,s2,nochange
-   nop
-   RDIOH T0_CNT,s5
-   WRIOH T0_CNTM,0x0008 ; reset
-   storeArrayWord s1, DATARECEIVE, s3
-   storeArrayWord s5, TIMERECEIVE, s3
-   move s2,s1
-   addiu s3,1
-   nochange:
-   bne s3,s4, gpustat_loop
-   nop
+WRIOH T1_CNTM,0x0300 ; reset and hblank as counter
 
-; print out word before vsync
-li s3,0
-loadArrayWord s1, DATARECEIVE, s3
-PrintHexValue 10,s6,s1
-loadArrayWord s2, DATAPS1, s3
-PrintHexValue 80,s6,s2
+; run test
+storeVariableConstantWord 0,TESTCOUNT
 
-; add 1 to testcount
-la a2,TESTCOUNT
-lw t1, 0(a2)
-nop
+li s1,260
+jal waitLine :: nop  
+
+WRIOH T2_CNTM,0x0200 ; reset and clk/8
+RDIOH T2_CNTM,t0
+
+li s2,0 ; mode = tmr0
+jal captureChanges :: nop
+jal captureChanges :: nop
+jal captureChanges :: nop
+jal captureChanges :: nop
+jal captureChanges :: nop
+jal captureChanges :: nop
+jal captureChanges :: nop
+
+loadVariableWord t1,TESTRUNS
 addiu t1,1
-sw t1, 0(a2)
+storeVariableWord t1,TESTRUNS
 
-; check value
-bne s1,s2,testfail_first
-nop
-; add 1 to tests passed
-la a2,TESTSPASS
-lw t1, 0(a2)
-nop
-addiu t1,1
-sw t1, 0(a2)
-testfail_first:
+jal waitLine :: nop 
 
-addiu s6,10
-PrintText 20,s6,TEXT_VSYNC
-addiu s6,10
+WRIOH T2_CNTM,0x0200 ; reset and clk/8
+
+li s2,1 ; mode = tmr1
+jal captureChanges :: nop
+jal captureChanges :: nop
+jal captureChanges :: nop
+jal captureChanges :: nop
+jal captureChanges :: nop
+jal captureChanges :: nop
+jal captureChanges :: nop
+
 
 ; print out all status changes and check for errors
-li s3,1
-li s4,10
+li s3,0
+loadVariableWord s4,TESTRUNS
 print_loop:
    ; print
    loadArrayWord s1, DATARECEIVE, s3
-   PrintHexValue 10,s6,s1
-   loadArrayWord s1, DATAPS1, s3
-   PrintHexValue 80,s6,s1
-   loadArrayWord s1, TIMERECEIVE, s3
-   PrintDezValue 150,s6,s1
-   loadArrayWord s1, TIMEMIN, s3
-   PrintDezValue 210,s6,s1
-   loadArrayWord s1, TIMEMAX, s3
-   PrintDezValue 270,s6,s1
-
+   li t0,0xFFFFFFFF
+   bne s1,t0,noIRQPrintDATARECEIVE
+   nop
+   PrintText 30,s6,TEXT_VSYNC
+   b endPrintDATARECEIVE
+   nop
+   noIRQPrintDATARECEIVE:
+   PrintHexValue 30,s6,s1
+   endPrintDATARECEIVE:
    
+   loadArrayWord s1, DATAPS1, s3
+   li t0,0xFFFFFFFF
+   bne s1,t0,noIRQPrintDATAPS1
+   nop
+   PrintText 100,s6,TEXT_VSYNC
+   b endPrintDATAPS1
+   nop
+   noIRQPrintDATAPS1:
+   PrintHexValue 100,s6,s1
+   endPrintDATAPS1:
+   
+   loadArrayWord s1, TIMERECEIVE, s3
+   PrintDezValue 170,s6,s1
+   loadArrayWord s1, TIMEMIN, s3
+   PrintDezValue 220,s6,s1
+   loadArrayWord s1, TIMEMAX, s3
+   PrintDezValue 280,s6,s1
+
    ; add 1 to testcount
    la a2,TESTCOUNT
    lw t1, 0(a2)
@@ -199,8 +171,13 @@ print_loop:
    nop
    addiu t1,1
    sw t1, 0(a2)
-   testfail:
+   b testok
+   nop
    
+   testfail:
+   PrintText 10,s6,TEXT_FAIL
+   
+   testok:
    addiu s3,1
    addiu s6,10
    bne s3,s4, print_loop
@@ -225,6 +202,96 @@ endloop:
   nop ; Delay Slot
 
 ;-----------------------------------------------------------------------------
+; test functions
+;-----------------------------------------------------------------------------
+
+waitVsync: 
+   li t1,0x0001
+   RDIOH I_STAT,t0
+   nop
+   and t0,t1
+   bne t0,t1,waitVsync 
+   nop
+   li t1,0
+   sw t1,I_STAT(a0)
+jr $31
+nop
+
+waitLine: 
+   RDIOH T1_CNT,t2
+   bne t2,s1,waitLine 
+   nop
+jr $31
+nop
+
+
+captureChanges:
+   RDIOW GPUSTAT,t0
+   
+   changeLoop:
+   ; check GPUSTAT change
+   RDIOW GPUSTAT,t2
+   beq t0,t2,noStatChange
+   nop
+   ; use tmr 1 = lines
+   beqz s2,useTMR2
+   nop
+   RDIOH T1_CNT,t5
+   b useTMRdone
+   nop
+   ; use tmr2 = clk / 8
+   useTMR2:
+   RDIOH T2_CNT,t5
+   RDIOH T2_CNTM,t6
+   WRIOH T2_CNTM,0x0200 ; reset and clk/8
+   ; add 0x10000 in case of overflow
+   li t0, 0x1000
+   and t6, t0
+   beqz t6,useTMRdone
+   nop
+   li t0,0x10000
+   addu t5,t0
+   nooverflow:
+   
+   useTMRdone:
+   move t0,t2
+   move t4,t2
+   b saveChange
+   nop
+   
+   noStatChange:
+   b changeLoop
+   nop
+   
+   saveChange:
+
+   loadVariableWord t1,TESTRUNS
+   storeArrayWord t4, DATARECEIVE, t1
+   storeArrayWord t5, TIMERECEIVE, t1
+   addiu t1,1
+   storeVariableWord t1,TESTRUNS
+   
+   RDIOW I_STAT,t3
+   nop
+   andi t3,1
+   beqz t3,noIRQChange
+   nop
+   li t1,0
+   sw t1,I_STAT(a0)
+   WRIOH T1_CNTM,0x0300 ; reset and hblank as counter
+   li t4,0xFFFFFFFF
+   li t5,0
+   loadVariableWord t1,TESTRUNS
+   storeArrayWord t4, DATARECEIVE, t1
+   storeArrayWord t5, TIMERECEIVE, t1
+   addiu t1,1
+   storeVariableWord t1,TESTRUNS
+   noIRQChange:
+
+jr $31
+nop
+
+;-----------------------------------------------------------------------------
 ; constants area
 ;-----------------------------------------------------------------------------
 
@@ -237,13 +304,14 @@ VALUEWORDG: .dw 0xFFFFFFFF
 TESTCOUNT: .dw 0x0
 TESTSPASS: .dw 0x0
 
-.align 4
-DATARECEIVE: .dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
-TIMERECEIVE: .dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+TESTRUNS: .dw 0x0
 
-DATAPS1    : .dw 0x94022400,0x14022400,0x94022400,0x14022400,0x94022400,0x14022400,0x94022400,0x14022400,0x94022400,0x14022400
-TIMEMIN    : .dw 0,11,17207,2160,2160,2160,2160,2160,2160,2160
-TIMEMAX    : .dw 0,13,17227,2173,2173,2173,2173,2173,2173,2173
+DATARECEIVE: .dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+TIMERECEIVE: .dw 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+
+DATAPS1    : .dw 0x94022400,0x14022400,0x94022400,0x14022400,0xFFFFFFFF,0x94022400,0x14022400,0x94022400,0x00000000,0x94022400,0x14022400,0x94022400,0x14022400,0xFFFFFFFF,0x94022400,0x14022400,0x94022400
+TIMEMIN    : .dw 16,268,268,268,0,6514,268,268,0,260,261,262,263,0,24,25,26
+TIMEMAX    : .dw 17,271,271,271,0,6516,271,271,0,260,261,262,263,0,24,25,26
   
 TEXT_TEST:       .db "TEST",0
 TEXT_PS1:        .db "PS1",0
@@ -253,5 +321,6 @@ TEXT_CYCLES:     .db "CYCLES",0
 TEXT_PS1MIN:     .db "PS1MIN",0
 TEXT_PS1MAX:     .db "PS1MAX",0
 TEXT_VSYNC:      .db "VSYNC",0
+TEXT_FAIL:      .db "F",0
 
 .close
