@@ -10,13 +10,14 @@ Timing:
 - TimingStoreRAM: test sdram write performance and writefifo behavior
 - TimingLoadReg: test read performance from different busses
 - TimingStoreReg: test write performance to different busses
-- TimingGPUSTAT_Vsync240p: test GPUSTAT behavior starting with vsync(tested against 7502) -> timing measured in div/8 clk cycles and line count
-- TimingGPUSTAT_Vsync480i: test GPUSTAT behavior starting with vsync(tested against 7502) -> timing measured in div/8 clk cycles
+- TimingGPUSTAT_Vsync240p: test GPUSTAT behavior starting with vsync -> timing measured in div/8 clk cycles and line count
+- TimingGPUSTAT_Vsync480i: test GPUSTAT behavior starting with vsync -> timing measured in div/8 clk cycles
 
 Timer:
 - TimerCalib: test resetting timer and reading it for calibration. Also TMR2 in Div8 mode and wraparound at 0xFFFF
 - TimerWrap: test wraparounds at different target values
 - TimerSet: Test various combinations of writing current, target and reset
+- TimerHBlank: Test cycles per line and Hblank reset point
 
 Bus:
 - LoadStoreReg: check 4 byte aligned reads/writes to different busses
@@ -66,7 +67,9 @@ ExtBUS:
 JOY:
 - Joypad: tests data connection and latency/timing for any pad connected to port 1
 
-Hint: most timing tests will fail if the basic TimerCalib tests are not pass
+Notes: 
+- most timing tests will fail if the basic TimerCalib tests are not pass
+- Everything tested against a 7502 PAL with PSIO. For tests that depend on video timing, slightly different values are expected on NTSC models
 
 -------------
 Original readme from Krom
